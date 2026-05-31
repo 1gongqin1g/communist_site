@@ -1,0 +1,26 @@
+{
+  "users": [
+    {
+      "id": "92cc6a31-86f6-4e1a-bab6-fcea62626c5c",
+      "username": "人机0002",
+      "password": "song1008",
+      "location": "北京",
+      "uid": "mpsgu2hvshgam"
+    }
+  ],
+  "articles": [],
+  "likes": [],
+  "favorites": [],
+  "friends": {
+    "人机0002": []
+  },
+  "groups": {},
+  "messages": {},
+  "profiles": {
+    "人机0002": {
+      "nickname": "",
+      "bio": "",
+      "avatar": ""
+    }
+  }
+}
