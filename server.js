@@ -26,8 +26,13 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(__dirname));
-app.use('/uploads', express.static(uploadDir));
+app.use(express.static(__dirname));           // 托管静态文件
+app.use('/uploads', express.static(uploadDir)); // 上传文件访问
+
+// ========== 显式首页路由（保底，避免 404） ==========
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // ========== 初始化数据 ==========
 let data = {
@@ -95,7 +100,6 @@ app.post('/delete-account', (req, res) => {
   if (!user) return res.json({ error: '用户不存在' });
   const nickname = user.nickname;
 
-  // 删除好友关系
   if (data.friends[nickname]) {
     data.friends[nickname].forEach(friendName => {
       if (data.friends[friendName]) {
@@ -105,10 +109,8 @@ app.post('/delete-account', (req, res) => {
     delete data.friends[nickname];
   }
 
-  // 删除好友请求
   data.friendRequests = data.friendRequests.filter(r => r.fromUserId !== userId && r.toUserId !== userId);
 
-  // 处理群组
   data.groups.forEach(g => {
     if (g.members.includes(userId)) {
       g.members = g.members.filter(m => m !== userId);
@@ -119,13 +121,11 @@ app.post('/delete-account', (req, res) => {
   });
   data.groups = data.groups.filter(g => g.members.length > 0);
 
-  // 删除文章
   data.articles = data.articles.filter(a => a.authorId !== userId);
   data.fulltextArticles = data.fulltextArticles.filter(a => a.authorId !== userId);
   data.intcomArticles = data.intcomArticles.filter(a => a.authorId !== userId);
   data.videos = data.videos.filter(v => v.authorId !== userId);
 
-  // 删除用户
   delete data.users[nickname];
   saveData();
   res.json({ success: true });
