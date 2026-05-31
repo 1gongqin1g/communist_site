@@ -11,7 +11,7 @@ app.use(cors());
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// ========== 数据与文件目录（支持 Railway Volume） ==========
+// ========== 数据与文件目录 ==========
 const DATA_DIR = process.env.DATA_DIR || __dirname;
 const DATA_FILE = path.join(DATA_DIR, 'data.json');
 const uploadDir = path.join(DATA_DIR, 'uploads');
@@ -27,18 +27,13 @@ const upload = multer({ storage });
 
 app.use(express.json({ limit: '10mb' }));
 
-// ========== 健康检查（Railway 必需） ==========
-app.get('/health', (req, res) => {
-  res.status(200).send('OK');
-});
+// ========== 健康检查（Railway 必需，必须放在最前） ==========
+app.get('/health', (req, res) => res.status(200).send('OK'));
 
-// ========== 静态文件 & 首页 ==========
+// ========== 静态文件托管 + 首页路由 ==========
 app.use(express.static(__dirname));
 app.use('/uploads', express.static(uploadDir));
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 // ========== 初始化数据 ==========
 let data = {
@@ -69,8 +64,9 @@ function saveData() {
 
 function generateUniqueId() {
   let id;
-  do { id = Math.floor(1000000000 + Math.random() * 9000000000).toString(); }
-  while (Object.values(data.users).some(u => u.id === id));
+  do {
+    id = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+  } while (Object.values(data.users).some(u => u.id === id));
   return id;
 }
 
@@ -137,7 +133,7 @@ app.post('/delete-account', (req, res) => {
   res.json({ success: true });
 });
 
-// ========== 其它 API（完整保留） ==========
+// ========== 个人主页功能 ==========
 app.post('/updateLocation', (req, res) => {
   const { id, location } = req.body;
   const user = getUserById(id);
@@ -576,7 +572,8 @@ io.use((socket, next) => {
   next();
 });
 
+// ========== 启动服务器（监听 0.0.0.0） ==========
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`交流站服务器已启动，访问 http://localhost:${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ 服务器已成功启动，端口 ${PORT}，健康检查 /health 可用`);
 });

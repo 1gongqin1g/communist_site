@@ -84,7 +84,6 @@
       display: block;
     }
 
-    /* ========== 通用卡片 ========== */
     .greeting-card {
       background: linear-gradient(135deg, #FFF8F0, #FFFDF5);
       border-radius: 20px;
@@ -95,61 +94,16 @@
       text-align: center;
       color: #4A2C2A;
     }
-    .greeting-card h2 {
-      color: #A51D2B;
-      margin-bottom: 25px;
-      font-size: 2rem;
-    }
-    .greeting-text {
-      font-size: 1.25rem;
-      line-height: 2.2;
-      color: #3B2A2A;
-      margin-bottom: 30px;
-    }
-    .greeting-text strong {
-      color: #B22222;
-    }
-    .quotes-section {
-      margin-top: 40px;
-      text-align: left;
-      border-top: 2px solid #EEDDCC;
-      padding-top: 30px;
-    }
-    .quotes-section h3 {
-      text-align: center;
-      color: #A51D2B;
-      margin-bottom: 25px;
-      font-size: 1.6rem;
-    }
-    .quote-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 15px;
-      margin-bottom: 20px;
-      padding: 12px 15px;
-      border-radius: 12px;
-      background: #FFFDF9;
-      border-left: 5px solid #C8102E;
-    }
-    .quote-icon {
-      font-size: 2rem;
-      color: #C8102E;
-      min-width: 40px;
-      text-align: center;
-    }
-    .quote-text {
-      font-style: italic;
-      color: #4A3333;
-      font-size: 1.05rem;
-    }
-    .quote-author {
-      font-weight: bold;
-      color: #8B0000;
-      margin-top: 6px;
-      font-style: normal;
-    }
+    .greeting-card h2 { color: #A51D2B; margin-bottom: 25px; font-size: 2rem; }
+    .greeting-text { font-size: 1.25rem; line-height: 2.2; color: #3B2A2A; margin-bottom: 30px; }
+    .greeting-text strong { color: #B22222; }
+    .quotes-section { margin-top: 40px; text-align: left; border-top: 2px solid #EEDDCC; padding-top: 30px; }
+    .quotes-section h3 { text-align: center; color: #A51D2B; margin-bottom: 25px; font-size: 1.6rem; }
+    .quote-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 20px; padding: 12px 15px; border-radius: 12px; background: #FFFDF9; border-left: 5px solid #C8102E; }
+    .quote-icon { font-size: 2rem; color: #C8102E; min-width: 40px; text-align: center; }
+    .quote-text { font-style: italic; color: #4A3333; font-size: 1.05rem; }
+    .quote-author { font-weight: bold; color: #8B0000; margin-top: 6px; font-style: normal; }
 
-    /* ========== 文章卡片（名人文章美化） ========== */
     .article-card {
       background: #FFFFFF;
       border-radius: 24px;
@@ -158,521 +112,87 @@
       box-shadow: 0 12px 40px rgba(0,0,0,0.06);
       border: 1px solid #EADBC8;
       color: #2B1D1D;
-      transition: box-shadow 0.3s ease;
     }
-    .article-card:hover {
-      box-shadow: 0 16px 48px rgba(0,0,0,0.08);
-    }
-    .article-card h2 {
-      text-align: center;
-      color: #A51D2B;
-      margin-bottom: 35px;
-      font-size: 2.2rem;
-      border-bottom: 2px solid #EEDDCC;
-      padding-bottom: 18px;
-      position: relative;
-    }
-    .article-card h2::after {
-      content: " ☭";
-      color: #C8102E;
-    }
-    .author-section {
-      margin-bottom: 40px;
-      background: #FDF8F3;
-      border-radius: 16px;
-      padding: 25px 20px;
-      border: 1px solid #EEDDCC;
-      transition: all 0.2s;
-    }
-    .author-section:hover {
-      background: #FFF9F2;
-      border-color: #D4B896;
-    }
-    .author-name {
-      font-size: 1.7rem;
-      font-weight: bold;
-      color: #8B0000;
-      margin-bottom: 20px;
-      padding-left: 15px;
-      border-left: 8px solid #C8102E;
-      position: relative;
-    }
-    .author-name::before {
-      content: "📖";
-      margin-right: 8px;
-      font-size: 1.5rem;
-    }
-    .article-list {
-      list-style: none;
-      padding-left: 0;
-      margin-top: 15px;
-    }
-    .article-list li {
-      padding: 12px 15px 12px 35px;
-      position: relative;
-      border-radius: 10px;
-      margin-bottom: 6px;
-      background: #FFFFFF;
-      border: 1px solid #F0E0CC;
-      color: #3B2A2A;
-      transition: all 0.2s;
-      font-size: 1.05rem;
-    }
-    .article-list li::before {
-      content: "📄";
-      position: absolute;
-      left: 10px;
-      top: 12px;
-      color: #C8102E;
-    }
-    .article-list li:hover {
-      background: #FFF0E0;
-      border-color: #C8102E;
-      transform: translateX(5px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
+    .article-card h2 { text-align: center; color: #A51D2B; margin-bottom: 35px; font-size: 2.2rem; border-bottom: 2px solid #EEDDCC; padding-bottom: 18px; }
+    .author-section { margin-bottom: 40px; background: #FDF8F3; border-radius: 16px; padding: 25px 20px; border: 1px solid #EEDDCC; }
+    .author-section:hover { background: #FFF9F2; border-color: #D4B896; }
+    .author-name { font-size: 1.7rem; font-weight: bold; color: #8B0000; margin-bottom: 20px; padding-left: 15px; border-left: 8px solid #C8102E; }
+    .article-list { list-style: none; padding-left: 0; margin-top: 15px; }
+    .article-list li { padding: 12px 15px 12px 35px; position: relative; border-radius: 10px; margin-bottom: 6px; background: #FFFFFF; border: 1px solid #F0E0CC; color: #3B2A2A; transition: all 0.2s; font-size: 1.05rem; }
+    .article-list li::before { content: "📄"; position: absolute; left: 10px; top: 12px; color: #C8102E; }
+    .article-list li:hover { background: #FFF0E0; border-color: #C8102E; transform: translateX(5px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
-    /* ========== 公共区域 ========== */
-    .public-area, .fulltext-area {
-      background: #FDF8F3;
-      border-radius: 16px;
-      padding: 25px 20px;
-      border: 1px solid #EEDDCC;
-      margin-bottom: 30px;
-    }
-    .public-area .author-name, .fulltext-area .author-name {
-      border-left: 8px solid #8B4513;
-    }
-    .add-article-btn {
-      background: #C8102E;
-      color: white;
-      border: none;
-      padding: 10px 28px;
-      border-radius: 25px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: all 0.3s;
-      margin-top: 15px;
-      display: inline-block;
-    }
-    .add-article-btn:hover {
-      background: #A51D2B;
-      box-shadow: 0 4px 12px rgba(168,30,45,0.3);
-    }
+    .public-area, .fulltext-area { background: #FDF8F3; border-radius: 16px; padding: 25px 20px; border: 1px solid #EEDDCC; margin-bottom: 30px; }
+    .add-article-btn { background: #C8102E; color: white; border: none; padding: 10px 28px; border-radius: 25px; cursor: pointer; font-weight: bold; margin-top: 15px; display: inline-block; }
+    .add-article-btn:hover { background: #A51D2B; box-shadow: 0 4px 12px rgba(168,30,45,0.3); }
 
-    /* ========== 聊天相关 ========== */
-    .chat-container {
-      display: flex;
-      height: 70vh;
-      min-height: 500px;
-      background: #FFF;
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-      margin: 20px auto;
-    }
-    .chat-sidebar {
-      width: 260px;
-      background: #FDF6F0;
-      border-right: 1px solid #EEDDCC;
-      display: flex;
-      flex-direction: column;
-    }
-    .sidebar-header {
-      padding: 15px;
-      background: #A51D2B;
-      color: #FFD700;
-      font-weight: bold;
-      text-align: center;
-    }
-    .friend-list, .group-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px;
-    }
-    .friend-item, .group-item {
-      padding: 10px;
-      margin: 5px 0;
-      background: #FFF;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: 1px solid #EEDDCC;
-    }
-    .friend-item:hover, .group-item:hover {
-      background: #FFE4C4;
-    }
-    .unread-badge {
-      background: #C8102E;
-      color: white;
-      border-radius: 10px;
-      padding: 2px 6px;
-      font-size: 12px;
-    }
-    .chat-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    .chat-header {
-      padding: 15px;
-      background: #FDF6F0;
-      border-bottom: 1px solid #EEDDCC;
-      font-weight: bold;
-      color: #A51D2B;
-    }
-    .chat-messages {
-      flex: 1;
-      padding: 15px;
-      overflow-y: auto;
-      background: #FFFDF9;
-    }
-    .message {
-      margin-bottom: 12px;
-      display: flex;
-      flex-direction: column;
-    }
-    .message.own {
-      align-items: flex-end;
-    }
-    .message-bubble {
-      max-width: 70%;
-      padding: 10px 15px;
-      border-radius: 18px;
-      background: #EEDDCC;
-      color: #2B1D1D;
-      word-break: break-word;
-    }
-    .message.own .message-bubble {
-      background: #C8102E;
-      color: white;
-    }
-    .message-sender {
-      font-size: 0.8rem;
-      color: #8B0000;
-      margin-bottom: 3px;
-    }
-    .chat-input-area {
-      padding: 15px;
-      background: #FDF6F0;
-      border-top: 1px solid #EEDDCC;
-      display: flex;
-    }
-    .chat-input-area input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #EEDDCC;
-      border-radius: 20px;
-      outline: none;
-    }
-    .chat-input-area button {
-      margin-left: 10px;
-      background: #C8102E;
-      color: white;
-      border: none;
-      border-radius: 20px;
-      padding: 10px 20px;
-      cursor: pointer;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    .modal-content {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      width: 320px;
-      text-align: center;
-    }
-    .modal-content input, .modal-content select {
-      width: 100%;
-      padding: 8px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    .modal-content button {
-      background: #A51D2B;
-      color: white;
-      border: none;
-      padding: 8px 20px;
-      border-radius: 5px;
-      margin: 5px;
-      cursor: pointer;
-    }
+    .chat-container { display: flex; height: 70vh; min-height: 500px; background: #FFF; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.08); margin: 20px auto; }
+    .chat-sidebar { width: 260px; background: #FDF6F0; border-right: 1px solid #EEDDCC; display: flex; flex-direction: column; }
+    .sidebar-header { padding: 15px; background: #A51D2B; color: #FFD700; font-weight: bold; text-align: center; }
+    .friend-list, .group-list { flex: 1; overflow-y: auto; padding: 10px; }
+    .friend-item, .group-item { padding: 10px; margin: 5px 0; background: #FFF; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border: 1px solid #EEDDCC; }
+    .friend-item:hover, .group-item:hover { background: #FFE4C4; }
+    .unread-badge { background: #C8102E; color: white; border-radius: 10px; padding: 2px 6px; font-size: 12px; }
+    .chat-main { flex: 1; display: flex; flex-direction: column; }
+    .chat-header { padding: 15px; background: #FDF6F0; border-bottom: 1px solid #EEDDCC; font-weight: bold; color: #A51D2B; }
+    .chat-messages { flex: 1; padding: 15px; overflow-y: auto; background: #FFFDF9; }
+    .message { margin-bottom: 12px; display: flex; flex-direction: column; }
+    .message.own { align-items: flex-end; }
+    .message-bubble { max-width: 70%; padding: 10px 15px; border-radius: 18px; background: #EEDDCC; color: #2B1D1D; word-break: break-word; }
+    .message.own .message-bubble { background: #C8102E; color: white; }
+    .message-sender { font-size: 0.8rem; color: #8B0000; margin-bottom: 3px; }
+    .chat-input-area { padding: 15px; background: #FDF6F0; border-top: 1px solid #EEDDCC; display: flex; }
+    .chat-input-area input { flex: 1; padding: 10px; border: 1px solid #EEDDCC; border-radius: 20px; outline: none; }
+    .chat-input-area button { margin-left: 10px; background: #C8102E; color: white; border: none; border-radius: 20px; padding: 10px 20px; cursor: pointer; }
 
-    /* 个人主页 */
-    .profile-info {
-      text-align: left;
-      padding: 20px;
-    }
-    .profile-info p {
-      margin: 10px 0;
-      font-size: 1.1rem;
-    }
-    .profile-info strong {
-      color: #A51D2B;
-    }
-    .edit-btn {
-      background: #C8102E;
-      color: white;
-      border: none;
-      padding: 6px 15px;
-      border-radius: 15px;
-      cursor: pointer;
-    }
-    .profile-image {
-      max-width: 200px;
-      max-height: 200px;
-      border-radius: 10px;
-      margin: 15px 0;
-      border: 3px solid #C8102E;
-    }
-    .image-upload-area {
-      margin-top: 20px;
-      padding-top: 15px;
-      border-top: 1px dashed #EEDDCC;
-    }
-    .image-upload-area input[type="file"] {
-      display: none;
-    }
-    .upload-btn {
-      background: #FFD700;
-      color: #A51D2B;
-      border: none;
-      padding: 8px 20px;
-      border-radius: 15px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .view-profile-btn {
-      background: none;
-      border: 1px solid #C8102E;
-      color: #C8102E;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      cursor: pointer;
-      font-size: 14px;
-      line-height: 22px;
-      text-align: center;
-      margin-left: 8px;
-    }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: white; padding: 30px; border-radius: 15px; width: 320px; text-align: center; }
+    .modal-content input, .modal-content select { width: 100%; padding: 8px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; }
+    .modal-content button { background: #A51D2B; color: white; border: none; padding: 8px 20px; border-radius: 5px; margin: 5px; cursor: pointer; }
 
-    /* 管理面板 */
-    .admin-panel {
-      margin-top: 20px;
-      padding: 20px;
-      background: #FFFDF5;
-      border: 2px solid #C8102E;
-      border-radius: 10px;
-      text-align: left;
-    }
-    .admin-panel h3 {
-      color: #C8102E;
-      margin-bottom: 10px;
-    }
-    .admin-list {
-      list-style: none;
-      padding: 0;
-    }
-    .admin-list li {
-      padding: 5px 0;
-      border-bottom: 1px solid #EEDDCC;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .demote-btn {
-      background: #8B0000;
-      color: white;
-      border: none;
-      padding: 4px 10px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 0.8rem;
-    }
+    .profile-info { text-align: left; padding: 20px; }
+    .profile-info p { margin: 10px 0; font-size: 1.1rem; }
+    .profile-info strong { color: #A51D2B; }
+    .edit-btn { background: #C8102E; color: white; border: none; padding: 6px 15px; border-radius: 15px; cursor: pointer; }
+    .profile-image { max-width: 200px; max-height: 200px; border-radius: 10px; margin: 15px 0; border: 3px solid #C8102E; }
+    .image-upload-area { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #EEDDCC; }
+    .image-upload-area input[type="file"] { display: none; }
+    .upload-btn { background: #FFD700; color: #A51D2B; border: none; padding: 8px 20px; border-radius: 15px; cursor: pointer; font-weight: bold; }
+    .view-profile-btn { background: none; border: 1px solid #C8102E; color: #C8102E; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 14px; line-height: 22px; text-align: center; margin-left: 8px; }
 
-    /* 群聊按钮 */
-    .group-btn {
-      background: none;
-      border: 1px solid #C8102E;
-      color: #C8102E;
-      border-radius: 12px;
-      padding: 2px 8px;
-      font-size: 12px;
-      margin-left: 4px;
-      cursor: pointer;
-    }
+    .admin-panel { margin-top: 20px; padding: 20px; background: #FFFDF5; border: 2px solid #C8102E; border-radius: 10px; text-align: left; }
+    .admin-panel h3 { color: #C8102E; margin-bottom: 10px; }
+    .admin-list { list-style: none; padding: 0; }
+    .admin-list li { padding: 5px 0; border-bottom: 1px solid #EEDDCC; display: flex; justify-content: space-between; align-items: center; }
+    .demote-btn { background: #8B0000; color: white; border: none; padding: 4px 10px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; }
+    .group-btn { background: none; border: 1px solid #C8102E; color: #C8102E; border-radius: 12px; padding: 2px 8px; font-size: 12px; margin-left: 4px; cursor: pointer; }
 
-    /* 搜索 */
-    .search-box {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin: 20px auto;
-    }
-    .search-box input {
-      padding: 10px 15px;
-      border: 1px solid #EEDDCC;
-      border-radius: 25px;
-      width: 300px;
-      outline: none;
-    }
-    .search-box button {
-      background: #C8102E;
-      color: white;
-      border: none;
-      border-radius: 25px;
-      padding: 10px 25px;
-      cursor: pointer;
-    }
-    .search-results {
-      text-align: left;
-      margin-top: 20px;
-    }
-    .search-result-item {
-      background: #FFFDF9;
-      border-left: 5px solid #C8102E;
-      padding: 12px 15px;
-      margin: 10px 0;
-      border-radius: 8px;
-    }
-    .tag-badge {
-      display: inline-block;
-      background: #EEDDCC;
-      color: #8B0000;
-      border-radius: 12px;
-      padding: 2px 10px;
-      font-size: 0.8rem;
-      margin-right: 5px;
-    }
-    .tag-selector {
-      margin: 10px 0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      align-items: center;
-    }
-    .tag-selector label {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      font-size: 0.9rem;
-      cursor: pointer;
-    }
-    .tag-selector input[type="checkbox"] {
-      margin-right: 2px;
-    }
-    .custom-tag-input {
-      padding: 5px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      width: 120px;
-      margin-left: 5px;
-    }
+    .search-box { display: flex; justify-content: center; gap: 10px; margin: 20px auto; }
+    .search-box input { padding: 10px 15px; border: 1px solid #EEDDCC; border-radius: 25px; width: 300px; outline: none; }
+    .search-box button { background: #C8102E; color: white; border: none; border-radius: 25px; padding: 10px 25px; cursor: pointer; }
+    .search-results { text-align: left; margin-top: 20px; }
+    .search-result-item { background: #FFFDF9; border-left: 5px solid #C8102E; padding: 12px 15px; margin: 10px 0; border-radius: 8px; }
+    .tag-badge { display: inline-block; background: #EEDDCC; color: #8B0000; border-radius: 12px; padding: 2px 10px; font-size: 0.8rem; margin-right: 5px; }
+    .tag-selector { margin: 10px 0; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+    .tag-selector label { display: flex; align-items: center; gap: 3px; font-size: 0.9rem; cursor: pointer; }
+    .tag-selector input[type="checkbox"] { margin-right: 2px; }
+    .custom-tag-input { padding: 5px; border: 1px solid #ccc; border-radius: 8px; width: 120px; margin-left: 5px; }
 
-    /* 投稿表单 */
-    .post-form {
-      text-align: left;
-      margin: 20px 0;
-      padding: 20px;
-      background: #FFFDF5;
-      border-radius: 12px;
-      border: 1px solid #EEDDCC;
-    }
-    .post-form input, .post-form textarea {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-family: inherit;
-    }
-    .post-form button {
-      background: #C8102E;
-      color: white;
-      border: none;
-      padding: 10px 25px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    .article-item {
-      background: #FFFDF9;
-      border: 1px solid #EEDDCC;
-      border-radius: 12px;
-      padding: 15px;
-      margin: 15px 0;
-      text-align: left;
-    }
-    .article-item h3 {
-      color: #A51D2B;
-      margin-bottom: 8px;
-    }
-    .article-meta {
-      font-size: 0.9rem;
-      color: #888;
-      margin-bottom: 10px;
-    }
-    .action-buttons {
-      display: flex;
-      gap: 15px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-    .action-btn {
-      background: none;
-      border: 1px solid #C8102E;
-      color: #C8102E;
-      padding: 5px 12px;
-      border-radius: 15px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: all 0.2s;
-    }
-    .action-btn:hover {
-      background: #C8102E;
-      color: white;
-    }
-    .sort-bar {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      justify-content: center;
-    }
-    .sort-bar button {
-      background: #EEDDCC;
-      border: none;
-      padding: 6px 18px;
-      border-radius: 15px;
-      cursor: pointer;
-    }
-    .sort-bar button.active-sort {
-      background: #C8102E;
-      color: white;
-    }
+    .post-form { text-align: left; margin: 20px 0; padding: 20px; background: #FFFDF5; border-radius: 12px; border: 1px solid #EEDDCC; }
+    .post-form input, .post-form textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; }
+    .post-form button { background: #C8102E; color: white; border: none; padding: 10px 25px; border-radius: 20px; cursor: pointer; font-size: 1rem; }
+    .article-item { background: #FFFDF9; border: 1px solid #EEDDCC; border-radius: 12px; padding: 15px; margin: 15px 0; text-align: left; }
+    .article-item h3 { color: #A51D2B; margin-bottom: 8px; }
+    .article-meta { font-size: 0.9rem; color: #888; margin-bottom: 10px; }
+    .action-buttons { display: flex; gap: 15px; margin-top: 10px; flex-wrap: wrap; }
+    .action-btn { background: none; border: 1px solid #C8102E; color: #C8102E; padding: 5px 12px; border-radius: 15px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+    .action-btn:hover { background: #C8102E; color: white; }
+    .sort-bar { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+    .sort-bar button { background: #EEDDCC; border: none; padding: 6px 18px; border-radius: 15px; cursor: pointer; }
+    .sort-bar button.active-sort { background: #C8102E; color: white; }
 
-    /* 世界聊天 */
-    .world-chat-box {
-      height: 400px;
-      overflow-y: auto;
-      background: #FFFDF9;
-      padding: 15px;
-      border-radius: 10px;
-      border: 1px solid #EEDDCC;
-      text-align: left;
-    }
+    .world-chat-box { height: 400px; overflow-y: auto; background: #FFFDF9; padding: 15px; border-radius: 10px; border: 1px solid #EEDDCC; text-align: left; }
 
-    /* 响应式 */
     @media (max-width: 600px) {
       .site-title { font-size: 1.6rem; letter-spacing: 2px; }
       .party-emblem-char { font-size: 45px; margin-right: 10px; }
@@ -738,81 +258,13 @@
     <div id="articles" class="page">
       <div class="article-card">
         <h2>📖 导师经典著作</h2>
-        <div class="author-section">
-          <div class="author-name">卡尔·马克思</div>
-          <ul class="article-list">
-            <li>《共产党宣言》（与恩格斯合著）</li>
-            <li>《资本论》第一卷、第二卷、第三卷</li>
-            <li>《1844年经济学哲学手稿》</li>
-            <li>《关于费尔巴哈的提纲》</li>
-            <li>《德意志意识形态》（与恩格斯合著）</li>
-            <li>《路易·波拿巴的雾月十八日》</li>
-            <li>《法兰西内战》</li>
-            <li>《哥达纲领批判》</li>
-          </ul>
-        </div>
-        <div class="author-section">
-          <div class="author-name">弗里德里希·恩格斯</div>
-          <ul class="article-list">
-            <li>《英国工人阶级状况》</li>
-            <li>《社会主义从空想到科学的发展》</li>
-            <li>《反杜林论》</li>
-            <li>《自然辩证法》</li>
-            <li>《家庭、私有制和国家的起源》</li>
-            <li>《路德维希·费尔巴哈和德国古典哲学的终结》</li>
-          </ul>
-        </div>
-        <div class="author-section">
-          <div class="author-name">弗拉基米尔·列宁</div>
-          <ul class="article-list">
-            <li>《怎么办？》</li>
-            <li>《唯物主义和经验批判主义》</li>
-            <li>《帝国主义是资本主义的最高阶段》</li>
-            <li>《国家与革命》</li>
-            <li>《共产主义运动中的“左派”幼稚病》</li>
-            <li>《伟大的创举》</li>
-          </ul>
-        </div>
-        <div class="author-section">
-          <div class="author-name">约瑟夫·斯大林</div>
-          <ul class="article-list">
-            <li>《论列宁主义基础》</li>
-            <li>《马克思主义和语言学问题》</li>
-            <li>《苏联社会主义经济问题》</li>
-          </ul>
-        </div>
-        <div class="author-section">
-          <div class="author-name">毛泽东</div>
-          <ul class="article-list">
-            <li>《中国社会各阶级的分析》</li>
-            <li>《湖南农民运动考察报告》</li>
-            <li>《星星之火，可以燎原》</li>
-            <li>《反对本本主义》</li>
-            <li>《实践论》</li>
-            <li>《矛盾论》</li>
-            <li>《论持久战》</li>
-            <li>《新民主主义论》</li>
-            <li>《在延安文艺座谈会上的讲话》</li>
-            <li>《为人民服务》</li>
-            <li>《愚公移山》</li>
-          </ul>
-        </div>
-
-        <!-- 其他文集 -->
-        <div class="public-area">
-          <div class="author-name">其他文集</div>
-          <div id="publicArticlesList" style="padding-left:20px;"><p style="color:#888;">暂无文章，点击下方按钮刊登。</p></div>
-          <button onclick="showAddPublicArticle()" class="add-article-btn">➕ 添加文章</button>
-        </div>
-
-        <!-- 全文区 -->
-        <div class="fulltext-area">
-          <div class="author-name">全文区</div>
-          <div id="fulltextArticlesList" style="padding-left:20px;"><p style="color:#888;">暂无全文，管理员或站主可在此刊登。</p></div>
-          <div id="fulltextAddBtn" style="display:none; margin-top:15px;">
-            <button onclick="showAddFulltext()" class="add-article-btn">➕ 添加全文（8888）</button>
-          </div>
-        </div>
+        <div class="author-section"><div class="author-name">卡尔·马克思</div><ul class="article-list"><li>《共产党宣言》（与恩格斯合著）</li><li>《资本论》第一卷、第二卷、第三卷</li><li>《1844年经济学哲学手稿》</li><li>《关于费尔巴哈的提纲》</li><li>《德意志意识形态》（与恩格斯合著）</li><li>《路易·波拿巴的雾月十八日》</li><li>《法兰西内战》</li><li>《哥达纲领批判》</li></ul></div>
+        <div class="author-section"><div class="author-name">弗里德里希·恩格斯</div><ul class="article-list"><li>《英国工人阶级状况》</li><li>《社会主义从空想到科学的发展》</li><li>《反杜林论》</li><li>《自然辩证法》</li><li>《家庭、私有制和国家的起源》</li><li>《路德维希·费尔巴哈和德国古典哲学的终结》</li></ul></div>
+        <div class="author-section"><div class="author-name">弗拉基米尔·列宁</div><ul class="article-list"><li>《怎么办？》</li><li>《唯物主义和经验批判主义》</li><li>《帝国主义是资本主义的最高阶段》</li><li>《国家与革命》</li><li>《共产主义运动中的“左派”幼稚病》</li><li>《伟大的创举》</li></ul></div>
+        <div class="author-section"><div class="author-name">约瑟夫·斯大林</div><ul class="article-list"><li>《论列宁主义基础》</li><li>《马克思主义和语言学问题》</li><li>《苏联社会主义经济问题》</li></ul></div>
+        <div class="author-section"><div class="author-name">毛泽东</div><ul class="article-list"><li>《中国社会各阶级的分析》</li><li>《湖南农民运动考察报告》</li><li>《星星之火，可以燎原》</li><li>《反对本本主义》</li><li>《实践论》</li><li>《矛盾论》</li><li>《论持久战》</li><li>《新民主主义论》</li><li>《在延安文艺座谈会上的讲话》</li><li>《为人民服务》</li><li>《愚公移山》</li></ul></div>
+        <div class="public-area"><div class="author-name">其他文集</div><div id="publicArticlesList" style="padding-left:20px;"><p style="color:#888;">暂无文章，点击下方按钮刊登。</p></div><button onclick="showAddPublicArticle()" class="add-article-btn">➕ 添加文章</button></div>
+        <div class="fulltext-area"><div class="author-name">全文区</div><div id="fulltextArticlesList" style="padding-left:20px;"><p style="color:#888;">暂无全文，管理员或站主可在此刊登。</p></div><div id="fulltextAddBtn" style="display:none; margin-top:15px;"><button onclick="showAddFulltext()" class="add-article-btn">➕ 添加全文（8888）</button></div></div>
       </div>
     </div>
 
@@ -829,9 +281,7 @@
       <div class="article-card">
         <h2>🌐 国际共运</h2>
         <div id="intcomArticlesList" style="padding-left:20px;"><p style="color:#888;">暂无文章。</p></div>
-        <div id="intcomAddBtn" style="display:none; margin:15px 0;">
-          <button onclick="showAddIntcomArticle()" class="add-article-btn">➕ 刊登文章（世界人民大团结）</button>
-        </div>
+        <div id="intcomAddBtn" style="display:none; margin:15px 0;"><button onclick="showAddIntcomArticle()" class="add-article-btn">➕ 刊登文章（世界人民大团结）</button></div>
       </div>
     </div>
 
@@ -839,19 +289,8 @@
     <div id="videos" class="page">
       <div class="greeting-card">
         <h2>🎬 视频区</h2>
-        <div id="videoUploadForm" style="display:none;">
-          <div class="post-form">
-            <h3>投稿视频</h3>
-            <input type="text" id="videoTitle" placeholder="视频标题">
-            <input type="text" id="videoUrl" placeholder="视频链接（如B站/YouTube）">
-            <textarea id="videoDesc" rows="3" placeholder="简介"></textarea>
-            <button onclick="uploadVideo()">投稿</button>
-          </div>
-        </div>
-        <div class="sort-bar">
-          <button class="active-sort" onclick="loadVideos('latest')">最新</button>
-          <button onclick="loadVideos('hot')">最热</button>
-        </div>
+        <div id="videoUploadForm" style="display:none;"><div class="post-form"><h3>投稿视频</h3><input type="text" id="videoTitle" placeholder="视频标题"><input type="text" id="videoUrl" placeholder="视频链接（如B站/YouTube）"><textarea id="videoDesc" rows="3" placeholder="简介"></textarea><button onclick="uploadVideo()">投稿</button></div></div>
+        <div class="sort-bar"><button class="active-sort" onclick="loadVideos('latest')">最新</button><button onclick="loadVideos('hot')">最热</button></div>
         <div id="videoList"></div>
       </div>
     </div>
@@ -862,38 +301,13 @@
         <h2>📤 投稿专区</h2>
         <p id="submitLoginTip" style="color:#888;">请先登录（点击“交流”登录），再进行投稿。</p>
         <div id="submitForms" style="display:none;">
-          <div class="submit-section" style="margin:20px 0; padding:20px; background:#FFFDF5; border-radius:12px; border:1px solid #EEDDCC;">
-            <h3>🎬 视频投稿</h3>
-            <div class="post-form">
-              <input type="text" id="submitVideoTitle" placeholder="视频标题">
-              <input type="text" id="submitVideoUrl" placeholder="视频链接（如B站/YouTube）">
-              <textarea id="submitVideoDesc" rows="3" placeholder="简介"></textarea>
-              <button onclick="submitVideo()">发布视频</button>
-            </div>
-          </div>
-          <div class="submit-section" style="margin:20px 0; padding:20px; background:#FFFDF5; border-radius:12px; border:1px solid #EEDDCC;">
-            <h3>📚 个人文集投稿</h3>
-            <div class="post-form">
-              <input type="text" id="submitArticleTitle" placeholder="文章标题">
-              <textarea id="submitArticleContent" rows="6" placeholder="正文内容..."></textarea>
-              <div class="tag-selector">
-                <strong>标签（必选）：</strong>
-                <label><input type="checkbox" value="政治" class="submit-tag-checkbox">政治</label>
-                <label><input type="checkbox" value="经济" class="submit-tag-checkbox">经济</label>
-                <label><input type="checkbox" value="军事" class="submit-tag-checkbox">军事</label>
-                <label><input type="checkbox" value="社会运动" class="submit-tag-checkbox">社会运动</label>
-                <label><input type="checkbox" value="演讲" class="submit-tag-checkbox">演讲</label>
-                <label><input type="checkbox" value="文艺" class="submit-tag-checkbox">文艺</label>
-                <input type="text" class="custom-tag-input" id="submitCustomTags" placeholder="自定义，逗号分隔">
-              </div>
-              <button onclick="submitArticle()">发布文章</button>
-            </div>
-          </div>
+          <div class="submit-section" style="margin:20px 0; padding:20px; background:#FFFDF5; border-radius:12px; border:1px solid #EEDDCC;"><h3>🎬 视频投稿</h3><div class="post-form"><input type="text" id="submitVideoTitle" placeholder="视频标题"><input type="text" id="submitVideoUrl" placeholder="视频链接（如B站/YouTube）"><textarea id="submitVideoDesc" rows="3" placeholder="简介"></textarea><button onclick="submitVideo()">发布视频</button></div></div>
+          <div class="submit-section" style="margin:20px 0; padding:20px; background:#FFFDF5; border-radius:12px; border:1px solid #EEDDCC;"><h3>📚 个人文集投稿</h3><div class="post-form"><input type="text" id="submitArticleTitle" placeholder="文章标题"><textarea id="submitArticleContent" rows="6" placeholder="正文内容..."></textarea><div class="tag-selector"><strong>标签（必选）：</strong><label><input type="checkbox" value="政治" class="submit-tag-checkbox">政治</label><label><input type="checkbox" value="经济" class="submit-tag-checkbox">经济</label><label><input type="checkbox" value="军事" class="submit-tag-checkbox">军事</label><label><input type="checkbox" value="社会运动" class="submit-tag-checkbox">社会运动</label><label><input type="checkbox" value="演讲" class="submit-tag-checkbox">演讲</label><label><input type="checkbox" value="文艺" class="submit-tag-checkbox">文艺</label><input type="text" class="custom-tag-input" id="submitCustomTags" placeholder="自定义，逗号分隔"></div><button onclick="submitArticle()">发布文章</button></div></div>
         </div>
       </div>
     </div>
 
-    <!-- 世界聊天 -->
+    <!-- 世界交流 -->
     <div id="world" class="page">
       <div class="greeting-card" style="text-align:left;">
         <h2>🌍 世界交流</h2>
@@ -910,18 +324,12 @@
 
     <!-- 个人主页 -->
     <div id="profile" class="page">
-      <div class="greeting-card" id="profileContent">
-        <h2>👤 个人主页</h2>
-        <p id="loginReminder">请先登录查看个人主页</p>
-      </div>
+      <div class="greeting-card" id="profileContent"><h2>👤 个人主页</h2><p id="loginReminder">请先登录查看个人主页</p></div>
     </div>
 
     <!-- 信箱 -->
     <div id="mailbox" class="page">
-      <div class="greeting-card">
-        <h2>📬 信箱</h2>
-        <div id="mailboxContent"><p>请先登录。</p></div>
-      </div>
+      <div class="greeting-card"><h2>📬 信箱</h2><div id="mailboxContent"><p>请先登录。</p></div></div>
     </div>
 
     <!-- 交流（聊天） -->
@@ -969,33 +377,13 @@
   </div>
 
   <!-- 弹窗 -->
-  <div id="friendProfileModal" class="modal">
-    <div class="modal-content" style="width:400px;">
-      <h3>同志信息</h3>
-      <div id="friendProfileInfo"></div>
-      <button onclick="document.getElementById('friendProfileModal').style.display='none'">关闭</button>
-    </div>
-  </div>
-  <div id="groupManageModal" class="modal">
-    <div class="modal-content" style="width:400px;">
-      <h3>群管理</h3>
-      <div id="groupManageContent"></div>
-      <button onclick="document.getElementById('groupManageModal').style.display='none'">关闭</button>
-    </div>
-  </div>
-  <div id="groupFileModal" class="modal">
-    <div class="modal-content" style="width:400px;">
-      <h3>群文件</h3>
-      <div id="groupFileList"></div>
-      <input type="file" id="groupFileInput" style="display:none;" onchange="uploadGroupFile()">
-      <button onclick="document.getElementById('groupFileInput').click()" class="edit-btn" style="margin-top:10px;">➕ 上传文件</button>
-      <button onclick="document.getElementById('groupFileModal').style.display='none'" style="margin-top:5px; background:#888;">关闭</button>
-    </div>
-  </div>
+  <div id="friendProfileModal" class="modal"><div class="modal-content" style="width:400px;"><h3>同志信息</h3><div id="friendProfileInfo"></div><button onclick="document.getElementById('friendProfileModal').style.display='none'">关闭</button></div></div>
+  <div id="groupManageModal" class="modal"><div class="modal-content" style="width:400px;"><h3>群管理</h3><div id="groupManageContent"></div><button onclick="document.getElementById('groupManageModal').style.display='none'">关闭</button></div></div>
+  <div id="groupFileModal" class="modal"><div class="modal-content" style="width:400px;"><h3>群文件</h3><div id="groupFileList"></div><input type="file" id="groupFileInput" style="display:none;" onchange="uploadGroupFile()"><button onclick="document.getElementById('groupFileInput').click()" class="edit-btn" style="margin-top:10px;">➕ 上传文件</button><button onclick="document.getElementById('groupFileModal').style.display='none'" style="margin-top:5px; background:#888;">关闭</button></div></div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    // ========== 导师文章数据 ==========
+    // 导师文章数据
     const mentorArticles = [
       { title:"《共产党宣言》", author:"卡尔·马克思 恩格斯", tags:["政治","社会运动"] },
       { title:"《资本论》第一卷", author:"卡尔·马克思", tags:["经济","政治"] },
@@ -1063,17 +451,12 @@
         if (target === 'articles') {
           loadPublicArticles();
           loadFulltextArticles();
-          if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'superadmin')) {
-            document.getElementById('fulltextAddBtn').style.display = 'block';
-          }
+          if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'superadmin')) document.getElementById('fulltextAddBtn').style.display = 'block';
         }
         if (target === 'intcom') {
           loadIntcomArticles();
-          if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'superadmin')) {
-            document.getElementById('intcomAddBtn').style.display = 'block';
-          } else {
-            document.getElementById('intcomAddBtn').style.display = 'none';
-          }
+          if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'superadmin')) document.getElementById('intcomAddBtn').style.display = 'block';
+          else document.getElementById('intcomAddBtn').style.display = 'none';
         }
         if (target === 'videos') {
           if (currentUser) document.getElementById('videoUploadForm').style.display = 'block';
@@ -1081,13 +464,8 @@
           loadVideos('latest');
         }
         if (target === 'submit') {
-          if (currentUser) {
-            document.getElementById('submitLoginTip').style.display = 'none';
-            document.getElementById('submitForms').style.display = 'block';
-          } else {
-            document.getElementById('submitLoginTip').style.display = 'block';
-            document.getElementById('submitForms').style.display = 'none';
-          }
+          if (currentUser) { document.getElementById('submitLoginTip').style.display = 'none'; document.getElementById('submitForms').style.display = 'block'; }
+          else { document.getElementById('submitLoginTip').style.display = 'block'; document.getElementById('submitForms').style.display = 'none'; }
         }
         if (target === 'mailbox' && currentUser) loadMailbox();
       });
@@ -1171,10 +549,7 @@
         html += `<div class="admin-panel"><h3>站主控制台</h3><button onclick="loadAdmins()" class="edit-btn">管理管理员</button><ul id="adminList" class="admin-list" style="margin-top:10px;"></ul></div>`;
       }
       html += `<div class="admin-panel" style="margin-top:20px;"><h3>🗂️ 稿件管理</h3><div id="userArticlesManage">加载中...</div></div>`;
-      // 注销账号按钮
-      html += `<div style="margin-top:25px; border-top:1px dashed #EEDDCC; padding-top:15px;">
-        <button class="demote-btn" onclick="deleteAccount()" style="width:100%;">🗑️ 注销账号</button>
-      </div>`;
+      html += `<div style="margin-top:25px; border-top:1px dashed #EEDDCC; padding-top:15px;"><button class="demote-btn" onclick="deleteAccount()" style="width:100%;">🗑️ 注销账号</button></div>`;
       container.innerHTML = html;
       loadUserArticlesForManagement();
     }
@@ -1185,12 +560,7 @@
       const articles = await res.json();
       const container = document.getElementById('userArticlesManage');
       if(!articles.length) container.innerHTML = '<p>暂无文章</p>';
-      else container.innerHTML = articles.map(a=>`
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #EEDDCC; padding:8px 0;">
-          <span>${a.title}</span>
-          <button class="demote-btn" onclick="deleteArticle('${a.id}')">删除</button>
-        </div>
-      `).join('');
+      else container.innerHTML = articles.map(a=>`<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #EEDDCC; padding:8px 0;"><span>${a.title}</span><button class="demote-btn" onclick="deleteArticle('${a.id}')">删除</button></div>`).join('');
     }
 
     async function deleteArticle(articleId){
@@ -1235,9 +605,7 @@
       const res = await fetch('/admin/list', { headers:{'x-user-id':currentUser.id} });
       const data = await res.json();
       if (data.error) return alert(data.error);
-      document.getElementById('adminList').innerHTML = data.admins.map(a => `
-        <li><span>${a.nickname} (ID: ${a.id})</span><button class="demote-btn" onclick="demoteAdmin('${a.id}')">撤销管理员</button></li>
-      `).join('');
+      document.getElementById('adminList').innerHTML = data.admins.map(a => `<li><span>${a.nickname} (ID: ${a.id})</span><button class="demote-btn" onclick="demoteAdmin('${a.id}')">撤销管理员</button></li>`).join('');
     }
     async function demoteAdmin(targetId) {
       if (!confirm('确认撤销？')) return;
@@ -1264,9 +632,8 @@
     }
 
     function verifyImagePassword() {
-      if (document.getElementById('imagePassword').value === '5555') {
-        document.getElementById('imageUploadControls').style.display = 'block';
-      } else alert('密码错误');
+      if (document.getElementById('imagePassword').value === '5555') document.getElementById('imageUploadControls').style.display = 'block';
+      else alert('密码错误');
     }
     async function uploadImage() {
       const file = document.getElementById('imageFileInput').files[0];
@@ -1287,10 +654,7 @@
     function viewFriendProfile(friendId) {
       fetch(`/user/${friendId}`).then(r=>r.json()).then(user=>{
         if(user.error) return alert(user.error);
-        document.getElementById('friendProfileInfo').innerHTML = `
-          <p><strong>昵称：</strong>${user.nickname}</p><p><strong>ID：</strong>${user.id}</p>
-          <p><strong>位置：</strong>${user.location?Object.values(user.location).filter(Boolean).join(' '):'未设置'}</p>
-          ${user.image?`<img src="${user.image}" style="max-width:200px; border-radius:10px; margin-top:10px;">`:''}`;
+        document.getElementById('friendProfileInfo').innerHTML = `<p><strong>昵称：</strong>${user.nickname}</p><p><strong>ID：</strong>${user.id}</p><p><strong>位置：</strong>${user.location?Object.values(user.location).filter(Boolean).join(' '):'未设置'}</p>${user.image?`<img src="${user.image}" style="max-width:200px; border-radius:10px; margin-top:10px;">`:''}`;
         document.getElementById('friendProfileModal').style.display = 'flex';
       });
     }
@@ -1307,36 +671,9 @@
       const container = document.getElementById('myArticlesContainer');
       const predefinedTags = ["政治","经济","军事","社会运动","演讲","文艺"];
       const tagCheckboxes = predefinedTags.map(tag => `<label><input type="checkbox" value="${tag}" class="tag-checkbox">${tag}</label>`).join('');
-      const formHtml = `
-        <div class="post-form">
-          <h3>发表新文章</h3>
-          <input type="text" id="newTitle" placeholder="文章标题">
-          <textarea id="newContent" rows="6" placeholder="正文内容..."></textarea>
-          <div class="tag-selector"><strong>标签（必选）：</strong>${tagCheckboxes}<input type="text" class="custom-tag-input" id="customTags" placeholder="自定义，逗号分隔"></div>
-          <button onclick="publishArticle()">发布</button>
-        </div>
-        <div class="sort-bar">
-          <button class="${myArticlesSort==='latest'?'active-sort':''}" onclick="setSort('latest')">最新</button>
-          <button class="${myArticlesSort==='hot'?'active-sort':''}" onclick="setSort('hot')">热门</button>
-        </div>`;
-      if (!articles.length) {
-        container.innerHTML = formHtml + '<p style="text-align:center; color:#888;">暂无文章</p>';
-      } else {
-        container.innerHTML = formHtml + articles.map(a => `
-          <div class="article-item">
-            <h3>${a.title}</h3>
-            <div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div>
-            <div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div>
-            <p>${a.content}</p>
-            <div class="action-buttons">
-              <button class="action-btn" onclick="likeArticle('${a.id}')">👍 ${a.likes||0}</button>
-              <button class="action-btn" onclick="favArticle('${a.id}')">⭐ ${a.favorites||0}</button>
-              <button class="action-btn" onclick="coinArticle('${a.id}')">🪙 ${a.coins||0}</button>
-              <button class="action-btn" onclick="recommendArticle('${a.id}')">📢 推荐 ${a.recommends||0}</button>
-            </div>
-          </div>
-        `).join('');
-      }
+      const formHtml = `<div class="post-form"><h3>发表新文章</h3><input type="text" id="newTitle" placeholder="文章标题"><textarea id="newContent" rows="6" placeholder="正文内容..."></textarea><div class="tag-selector"><strong>标签（必选）：</strong>${tagCheckboxes}<input type="text" class="custom-tag-input" id="customTags" placeholder="自定义，逗号分隔"></div><button onclick="publishArticle()">发布</button></div><div class="sort-bar"><button class="${myArticlesSort==='latest'?'active-sort':''}" onclick="setSort('latest')">最新</button><button class="${myArticlesSort==='hot'?'active-sort':''}" onclick="setSort('hot')">热门</button></div>`;
+      if (!articles.length) container.innerHTML = formHtml + '<p style="text-align:center; color:#888;">暂无文章</p>';
+      else container.innerHTML = formHtml + articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><p>${a.content}</p><div class="action-buttons"><button class="action-btn" onclick="likeArticle('${a.id}')">👍 ${a.likes||0}</button><button class="action-btn" onclick="favArticle('${a.id}')">⭐ ${a.favorites||0}</button><button class="action-btn" onclick="coinArticle('${a.id}')">🪙 ${a.coins||0}</button><button class="action-btn" onclick="recommendArticle('${a.id}')">📢 推荐 ${a.recommends||0}</button></div></div>`).join('');
     }
     function setSort(sort) { myArticlesSort = sort; loadMyArticles(); }
     async function publishArticle() {
@@ -1345,10 +682,7 @@
       const checkedBoxes = document.querySelectorAll('.tag-checkbox:checked');
       const selectedTags = Array.from(checkedBoxes).map(cb => cb.value);
       const customInput = document.getElementById('customTags').value.trim();
-      if (customInput) {
-        const customs = customInput.split(',').map(s => s.trim()).filter(Boolean);
-        customs.forEach(t => { if (!selectedTags.includes(t)) selectedTags.push(t); });
-      }
+      if (customInput) { const customs = customInput.split(',').map(s => s.trim()).filter(Boolean); customs.forEach(t => { if (!selectedTags.includes(t)) selectedTags.push(t); }); }
       if (selectedTags.length === 0) return alert('请至少选择一个标签');
       if (!title || !content) return alert('标题和内容不能为空');
       const res = await fetch('/publish', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,content,tags:selectedTags}) });
@@ -1356,22 +690,10 @@
       if (data.error) alert(data.error);
       else loadMyArticles();
     }
-    async function likeArticle(articleId) {
-      await fetch(`/articles/${articleId}/like`, { method:'POST' });
-      loadMyArticles();
-    }
-    async function favArticle(articleId) {
-      await fetch(`/articles/${articleId}/favorite`, { method:'POST' });
-      loadMyArticles();
-    }
-    async function coinArticle(articleId) {
-      await fetch(`/articles/${articleId}/coin`, { method:'POST' });
-      loadMyArticles();
-    }
-    async function recommendArticle(articleId) {
-      await fetch(`/articles/${articleId}/recommend`, { method:'POST',headers:{'x-user-id':currentUser.id} });
-      loadMyArticles();
-    }
+    async function likeArticle(articleId) { await fetch(`/articles/${articleId}/like`, { method:'POST' }); loadMyArticles(); }
+    async function favArticle(articleId) { await fetch(`/articles/${articleId}/favorite`, { method:'POST' }); loadMyArticles(); }
+    async function coinArticle(articleId) { await fetch(`/articles/${articleId}/coin`, { method:'POST' }); loadMyArticles(); }
+    async function recommendArticle(articleId) { await fetch(`/articles/${articleId}/recommend`, { method:'POST',headers:{'x-user-id':currentUser.id} }); loadMyArticles(); }
 
     // ========== 其他文集 ==========
     async function loadPublicArticles() {
@@ -1379,14 +701,7 @@
       const articles = await res.json();
       const container = document.getElementById('publicArticlesList');
       if (!articles.length) container.innerHTML = '<p style="color:#888;">暂无文章，点击下方按钮刊登。</p>';
-      else container.innerHTML = articles.map(a => `
-        <div class="article-item">
-          <h3>${a.title}</h3>
-          <div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div>
-          <div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div>
-          <p>${a.content}</p>
-        </div>
-      `).join('');
+      else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><p>${a.content}</p></div>`).join('');
     }
     function showAddPublicArticle() {
       const pwd = prompt('请输入刊登密码：');
@@ -1398,8 +713,7 @@
       const tagsInput = prompt('请输入标签（用逗号分隔，如：政治,经济）：');
       const tags = tagsInput ? tagsInput.split(',').map(s => s.trim()).filter(Boolean) : [];
       if (tags.length === 0) return alert('至少需要一个标签');
-      fetch('/publish-public', { method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,content,password:pwd,tags}) })
-        .then(r=>r.json()).then(data=>{ if(data.error) alert(data.error); else loadPublicArticles(); });
+      fetch('/publish-public', { method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,content,password:pwd,tags}) }).then(r=>r.json()).then(data=>{ if(data.error) alert(data.error); else loadPublicArticles(); });
     }
 
     // ========== 全文区 ==========
@@ -1408,15 +722,7 @@
       const articles = await res.json();
       const container = document.getElementById('fulltextArticlesList');
       if (!articles.length) container.innerHTML = '<p style="color:#888;">暂无全文，管理员或站主可在此刊登。</p>';
-      else container.innerHTML = articles.map(a => `
-        <div class="article-item">
-          <h3>${a.title}</h3>
-          <div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div>
-          <div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div>
-          <p>${a.content}</p>
-          <div class="action-buttons"><button class="action-btn" onclick="recommendArticle('${a.id}')">📢 推荐 ${a.recommends||0}</button></div>
-        </div>
-      `).join('');
+      else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><p>${a.content}</p><div class="action-buttons"><button class="action-btn" onclick="recommendArticle('${a.id}')">📢 推荐 ${a.recommends||0}</button></div></div>`).join('');
     }
     function showAddFulltext() {
       if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'superadmin')) return alert('仅管理员或站主可刊登');
@@ -1429,8 +735,7 @@
       const tagsInput = prompt('请输入标签（用逗号分隔）：');
       const tags = tagsInput ? tagsInput.split(',').map(s => s.trim()).filter(Boolean) : [];
       if (tags.length === 0) return alert('至少需要一个标签');
-      fetch('/publish-fulltext', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,content,tags,password:pwd}) })
-        .then(r=>r.json()).then(data=>{ if(data.error) alert(data.error); else loadFulltextArticles(); });
+      fetch('/publish-fulltext', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,content,tags,password:pwd}) }).then(r=>r.json()).then(data=>{ if(data.error) alert(data.error); else loadFulltextArticles(); });
     }
 
     // ========== 国际共运 ==========
@@ -1439,15 +744,7 @@
       const articles = await res.json();
       const container = document.getElementById('intcomArticlesList');
       if (!articles.length) container.innerHTML = '<p style="color:#888;">暂无文章。</p>';
-      else container.innerHTML = articles.map(a => `
-        <div class="article-item">
-          <h3>${a.title}</h3>
-          <div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div>
-          <div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div>
-          <div style="margin:10px 0;">${a.content}</div>
-          <div class="action-buttons"><button class="action-btn" onclick="recommendIntcomArticle('${a.id}')">👍 推荐 ${a.recommends||0}</button></div>
-        </div>
-      `).join('');
+      else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><div style="margin:10px 0;">${a.content}</div><div class="action-buttons"><button class="action-btn" onclick="recommendIntcomArticle('${a.id}')">👍 推荐 ${a.recommends||0}</button></div></div>`).join('');
     }
     function showAddIntcomArticle() {
       if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'superadmin')) return alert('仅管理员或站主可刊登');
@@ -1460,13 +757,9 @@
       const tagsInput = prompt('请输入标签（用逗号分隔）：');
       const tags = tagsInput ? tagsInput.split(',').map(s => s.trim()).filter(Boolean) : [];
       if (tags.length === 0) return alert('至少需要一个标签');
-      fetch('/publish-intcom', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,content,tags,password:pwd}) })
-        .then(r=>r.json()).then(data=>{ if(data.error) alert(data.error); else loadIntcomArticles(); });
+      fetch('/publish-intcom', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,content,tags,password:pwd}) }).then(r=>r.json()).then(data=>{ if(data.error) alert(data.error); else loadIntcomArticles(); });
     }
-    async function recommendIntcomArticle(articleId) {
-      await fetch(`/intcom-articles/${articleId}/recommend`, { method:'POST',headers:{'x-user-id':currentUser.id} });
-      loadIntcomArticles();
-    }
+    async function recommendIntcomArticle(articleId) { await fetch(`/intcom-articles/${articleId}/recommend`, { method:'POST',headers:{'x-user-id':currentUser.id} }); loadIntcomArticles(); }
 
     // ========== 视频区 ==========
     let videoSort = 'latest';
@@ -1476,20 +769,7 @@
       const videos = await res.json();
       const container = document.getElementById('videoList');
       if (!videos.length) container.innerHTML = '<p style="color:#888;">暂无视频。</p>';
-      else container.innerHTML = videos.map(v => `
-        <div class="article-item">
-          <h3>${v.title}</h3>
-          <div class="article-meta">${v.author} · ${new Date(v.timestamp).toLocaleString()}</div>
-          <p>${v.desc||''}</p>
-          <a href="${v.url}" target="_blank">🔗 观看视频</a>
-          <div class="action-buttons">
-            <button class="action-btn" onclick="likeVideo('${v.id}')">👍 ${v.likes||0}</button>
-            <button class="action-btn" onclick="favVideo('${v.id}')">⭐ ${v.favorites||0}</button>
-            <button class="action-btn" onclick="showVideoComments('${v.id}')">💬 ${v.comments? v.comments.length:0}</button>
-          </div>
-          <div id="comments-${v.id}" style="display:none; margin-top:10px;"></div>
-        </div>
-      `).join('');
+      else container.innerHTML = videos.map(v => `<div class="article-item"><h3>${v.title}</h3><div class="article-meta">${v.author} · ${new Date(v.timestamp).toLocaleString()}</div><p>${v.desc||''}</p><a href="${v.url}" target="_blank">🔗 观看视频</a><div class="action-buttons"><button class="action-btn" onclick="likeVideo('${v.id}')">👍 ${v.likes||0}</button><button class="action-btn" onclick="favVideo('${v.id}')">⭐ ${v.favorites||0}</button><button class="action-btn" onclick="showVideoComments('${v.id}')">💬 ${v.comments? v.comments.length:0}</button></div><div id="comments-${v.id}" style="display:none; margin-top:10px;"></div></div>`).join('');
     }
     async function uploadVideo() {
       if (!currentUser) return alert('请先登录');
@@ -1502,23 +782,14 @@
       if (data.error) alert(data.error);
       else { loadVideos(videoSort); document.getElementById('videoTitle').value=''; document.getElementById('videoUrl').value=''; document.getElementById('videoDesc').value=''; }
     }
-    async function likeVideo(videoId) {
-      await fetch(`/videos/${videoId}/like`, { method:'POST',headers:{'x-user-id':currentUser.id} });
-      loadVideos(videoSort);
-    }
-    async function favVideo(videoId) {
-      await fetch(`/videos/${videoId}/favorite`, { method:'POST',headers:{'x-user-id':currentUser.id} });
-      loadVideos(videoSort);
-    }
+    async function likeVideo(videoId) { await fetch(`/videos/${videoId}/like`, { method:'POST',headers:{'x-user-id':currentUser.id} }); loadVideos(videoSort); }
+    async function favVideo(videoId) { await fetch(`/videos/${videoId}/favorite`, { method:'POST',headers:{'x-user-id':currentUser.id} }); loadVideos(videoSort); }
     async function showVideoComments(videoId) {
       const container = document.getElementById('comments-'+videoId);
       if (container.style.display === 'none') {
         const res = await fetch(`/videos/${videoId}/comments`);
         const data = await res.json();
-        container.innerHTML = `<div style="margin-top:10px;"><strong>评论</strong></div>
-          ${data.comments.map(c=>`<div style="background:#FFFDF9; padding:5px; margin:5px 0; border-radius:5px;"><strong>${c.author}:</strong> ${c.text} <span style="color:#888;">${new Date(c.timestamp).toLocaleString()}</span></div>`).join('')}
-          <textarea id="commentInput-${videoId}" rows="2" style="width:100%;" placeholder="发表评论..."></textarea>
-          <button onclick="postComment('${videoId}')" class="edit-btn">发送</button>`;
+        container.innerHTML = `<div style="margin-top:10px;"><strong>评论</strong></div>${data.comments.map(c=>`<div style="background:#FFFDF9; padding:5px; margin:5px 0; border-radius:5px;"><strong>${c.author}:</strong> ${c.text} <span style="color:#888;">${new Date(c.timestamp).toLocaleString()}</span></div>`).join('')}<textarea id="commentInput-${videoId}" rows="2" style="width:100%;" placeholder="发表评论..."></textarea><button onclick="postComment('${videoId}')" class="edit-btn">发送</button>`;
         container.style.display = 'block';
       } else container.style.display = 'none';
     }
@@ -1549,10 +820,7 @@
       const checkedBoxes = document.querySelectorAll('.submit-tag-checkbox:checked');
       const selectedTags = Array.from(checkedBoxes).map(cb => cb.value);
       const customInput = document.getElementById('submitCustomTags').value.trim();
-      if (customInput) {
-        const customs = customInput.split(',').map(s => s.trim()).filter(Boolean);
-        customs.forEach(t => { if (!selectedTags.includes(t)) selectedTags.push(t); });
-      }
+      if (customInput) { const customs = customInput.split(',').map(s => s.trim()).filter(Boolean); customs.forEach(t => { if (!selectedTags.includes(t)) selectedTags.push(t); }); }
       if (selectedTags.length === 0) return alert('请至少选择一个标签');
       if (!title || !content) return alert('标题和内容不能为空');
       const res = await fetch('/publish', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,content,tags:selectedTags}) });
@@ -1569,17 +837,13 @@
       const container = document.getElementById('mailboxContent');
       let html = '<h3>📩 好友申请</h3>';
       if (data.requests.length === 0) html += '<p>暂无申请</p>';
-      else data.requests.forEach(r => {
-        html += `<div style="margin:5px 0;">${r.fromName} (ID: ${r.fromId}) <button class="edit-btn" onclick="acceptFriend('${r.id}')">同意</button> <button class="demote-btn" onclick="rejectFriend('${r.id}')">拒绝</button></div>`;
-      });
+      else data.requests.forEach(r => { html += `<div style="margin:5px 0;">${r.fromName} (ID: ${r.fromId}) <button class="edit-btn" onclick="acceptFriend('${r.id}')">同意</button> <button class="demote-btn" onclick="rejectFriend('${r.id}')">拒绝</button></div>`; });
       html += '<h3 style="margin-top:20px;">👥 好友列表</h3>';
       if (data.friends.length === 0) html += '<p>暂无好友</p>';
       else data.friends.forEach(f => { html += `<div>${f.name} (ID: ${f.id})</div>`; });
       html += '<h3 style="margin-top:20px;">🔔 通知</h3>';
       if (data.notifications.length === 0) html += '<p>暂无通知</p>';
-      else data.notifications.forEach(n => {
-        html += `<div style="margin:5px 0; border-bottom:1px solid #EEDDCC;">${n.message} <span style="color:#888;">${new Date(n.timestamp).toLocaleString()}</span></div>`;
-      });
+      else data.notifications.forEach(n => { html += `<div style="margin:5px 0; border-bottom:1px solid #EEDDCC;">${n.message} <span style="color:#888;">${new Date(n.timestamp).toLocaleString()}</span></div>`; });
       container.innerHTML = html;
     }
     async function acceptFriend(requestId) {
@@ -1615,13 +879,7 @@
       });
       const container = document.getElementById('searchResults');
       if (results.length === 0) container.innerHTML = '<p style="color:#888;">未找到相关文章。</p>';
-      else container.innerHTML = results.map(r => `
-        <div class="search-result-item">
-          <strong>${r.title}</strong> <span style="color:#888;">—— ${r.author}</span>
-          <div>${r.tags ? r.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div>
-          ${r.content ? `<p style="margin-top:5px;">${r.content.substring(0,100)}...</p>` : ''}
-        </div>
-      `).join('');
+      else container.innerHTML = results.map(r => `<div class="search-result-item"><strong>${r.title}</strong> <span style="color:#888;">—— ${r.author}</span><div>${r.tags ? r.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div>${r.content ? `<p style="margin-top:5px;">${r.content.substring(0,100)}...</p>` : ''}</div>`).join('');
     }
 
     // ========== Socket 聊天 ==========
@@ -1638,7 +896,7 @@
       socket.on('errorMsg', (msg) => alert(msg));
       socket.on('refreshFriends', () => { socket.emit('getMyFriends'); });
       socket.on('groupFilesUpdated', (groupId) => { if (currentGroupId === groupId) loadGroupFiles(groupId); });
-      // 世界聊天事件
+      // 世界聊天
       socket.on('worldMessage', (msg) => {
         const container = document.getElementById('worldMessages');
         if (container) {
@@ -1737,16 +995,10 @@
     // 群管理
     function openGroupManage(groupId) {
       currentGroupId = groupId;
-      const group = groups.find(g => g.id === groupId);
-      if (!group) return;
-      fetch(`/group/${groupId}/members`, { headers:{'x-user-id':currentUser.id} })
-      .then(r=>r.json())
-      .then(data => {
+      fetch(`/group/${groupId}/members`, { headers:{'x-user-id':currentUser.id} }).then(r=>r.json()).then(data => {
         if (data.error) return alert(data.error);
         let html = '<p><strong>群成员：</strong></p><ul>';
-        data.members.forEach(m => {
-          html += `<li>${m.nickname} (ID: ${m.id}) <button class="demote-btn" onclick="kickMember('${groupId}','${m.id}')">踢出</button></li>`;
-        });
+        data.members.forEach(m => { html += `<li>${m.nickname} (ID: ${m.id}) <button class="demote-btn" onclick="kickMember('${groupId}','${m.id}')">踢出</button></li>`; });
         html += `</ul><input type="text" id="inviteIdInput" placeholder="输入要邀请的同志ID" style="width:150px;"><button onclick="inviteMember('${groupId}')" class="edit-btn">邀请</button>`;
         document.getElementById('groupManageContent').innerHTML = html;
         document.getElementById('groupManageModal').style.display = 'flex';
@@ -1755,13 +1007,11 @@
     function inviteMember(groupId) {
       const targetId = document.getElementById('inviteIdInput').value.trim();
       if (!targetId) return;
-      fetch(`/group/${groupId}/invite`, { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({targetUserId:targetId}) })
-      .then(r=>r.json()).then(data=>{ if(data.error) alert(data.error); else { alert('邀请成功'); openGroupManage(groupId); } });
+      fetch(`/group/${groupId}/invite`, { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({targetUserId:targetId}) }).then(r=>r.json()).then(data=>{ if(data.error) alert(data.error); else { alert('邀请成功'); openGroupManage(groupId); } });
     }
     function kickMember(groupId, targetId) {
       if (!confirm('确认踢出？')) return;
-      fetch(`/group/${groupId}/kick`, { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({targetUserId:targetId}) })
-      .then(r=>r.json()).then(data=>{ if(data.error) alert(data.error); else { alert('已踢出'); openGroupManage(groupId); } });
+      fetch(`/group/${groupId}/kick`, { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({targetUserId:targetId}) }).then(r=>r.json()).then(data=>{ if(data.error) alert(data.error); else { alert('已踢出'); openGroupManage(groupId); } });
     }
 
     // 群文件
@@ -1791,7 +1041,7 @@
       else { alert('上传成功'); loadGroupFiles(currentGroupId); fileInput.value=''; }
     }
 
-    // ========== 世界聊天发送 ==========
+    // 世界消息发送
     function sendWorldMessage() {
       const input = document.getElementById('worldInput');
       const content = input.value.trim();
