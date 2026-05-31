@@ -213,7 +213,7 @@
     <div class="navbar">
       <a class="nav-link active" data-page="home">🏠 主页</a>
       <a class="nav-link" data-page="articles">📖 名人文章</a>
-      <a class="nav-link" data-page="collections">📚 个人文集</a>
+      <a class="nav-link" data-page="collections">📰 个人精文报</a>
       <a class="nav-link" data-page="intcom">🌐 国际共运</a>
       <a class="nav-link" data-page="videos">🎬 视频区</a>
       <a class="nav-link" data-page="submit">📤 投稿</a>
@@ -268,10 +268,10 @@
       </div>
     </div>
 
-    <!-- 个人文集 -->
+    <!-- 个人精文报（原个人文集，现为公开广场） -->
     <div id="collections" class="page">
       <div class="greeting-card">
-        <h2>📚 个人文集</h2>
+        <h2>📰 个人精文报</h2>
         <div id="myArticlesContainer"><p id="collectionsLoginTip">请先登录（点击“交流”登录），再发表您的文章。</p></div>
       </div>
     </div>
@@ -302,7 +302,7 @@
         <p id="submitLoginTip" style="color:#888;">请先登录（点击“交流”登录），再进行投稿。</p>
         <div id="submitForms" style="display:none;">
           <div class="submit-section" style="margin:20px 0; padding:20px; background:#FFFDF5; border-radius:12px; border:1px solid #EEDDCC;"><h3>🎬 视频投稿</h3><div class="post-form"><input type="text" id="submitVideoTitle" placeholder="视频标题"><input type="text" id="submitVideoUrl" placeholder="视频链接（如B站/YouTube）"><textarea id="submitVideoDesc" rows="3" placeholder="简介"></textarea><button onclick="submitVideo()">发布视频</button></div></div>
-          <div class="submit-section" style="margin:20px 0; padding:20px; background:#FFFDF5; border-radius:12px; border:1px solid #EEDDCC;"><h3>📚 个人文集投稿</h3><div class="post-form"><input type="text" id="submitArticleTitle" placeholder="文章标题"><textarea id="submitArticleContent" rows="6" placeholder="正文内容..."></textarea><div class="tag-selector"><strong>标签（必选）：</strong><label><input type="checkbox" value="政治" class="submit-tag-checkbox">政治</label><label><input type="checkbox" value="经济" class="submit-tag-checkbox">经济</label><label><input type="checkbox" value="军事" class="submit-tag-checkbox">军事</label><label><input type="checkbox" value="社会运动" class="submit-tag-checkbox">社会运动</label><label><input type="checkbox" value="演讲" class="submit-tag-checkbox">演讲</label><label><input type="checkbox" value="文艺" class="submit-tag-checkbox">文艺</label><input type="text" class="custom-tag-input" id="submitCustomTags" placeholder="自定义，逗号分隔"></div><button onclick="submitArticle()">发布文章</button></div></div>
+          <div class="submit-section" style="margin:20px 0; padding:20px; background:#FFFDF5; border-radius:12px; border:1px solid #EEDDCC;"><h3>📰 个人精文报投稿</h3><div class="post-form"><input type="text" id="submitArticleTitle" placeholder="文章标题"><textarea id="submitArticleContent" rows="6" placeholder="正文内容...（支持HTML）"></textarea><div class="tag-selector"><strong>标签（必选）：</strong><label><input type="checkbox" value="政治" class="submit-tag-checkbox">政治</label><label><input type="checkbox" value="经济" class="submit-tag-checkbox">经济</label><label><input type="checkbox" value="军事" class="submit-tag-checkbox">军事</label><label><input type="checkbox" value="社会运动" class="submit-tag-checkbox">社会运动</label><label><input type="checkbox" value="演讲" class="submit-tag-checkbox">演讲</label><label><input type="checkbox" value="文艺" class="submit-tag-checkbox">文艺</label><input type="text" class="custom-tag-input" id="submitCustomTags" placeholder="自定义，逗号分隔"></div><button onclick="submitArticle()">发布文章</button></div></div>
         </div>
       </div>
     </div>
@@ -447,7 +447,7 @@
         this.classList.add('active');
         document.getElementById(target).classList.add('active');
         if (target === 'profile' && currentUser) renderProfile();
-        if (target === 'collections' && currentUser) loadMyArticles();
+        if (target === 'collections' && currentUser) loadPublicFeed();
         if (target === 'articles') {
           loadPublicArticles();
           loadFulltextArticles();
@@ -500,7 +500,7 @@
       document.getElementById('collectionsLoginTip').textContent='';
       connectSocket();
       renderProfile();
-      loadMyArticles();
+      loadPublicFeed();
       loadPublicArticles();
       loadFulltextArticles();
       loadIntcomArticles();
@@ -525,6 +525,7 @@
           <p><strong>ID：</strong>${currentUser.id}</p>
           <p><strong>昵称：</strong>${currentUser.nickname}</p>
           <p><strong>角色：</strong>${currentUser.role==='superadmin'?'站主':currentUser.role==='admin'?'管理员':'普通同志'}</p>
+          <p><strong>硬币：</strong>${currentUser.coins||0} <button class="edit-btn" onclick="dailyClaim()">每日签到</button></p>
           <p><strong>位置：</strong>${currentUser.location?Object.values(currentUser.location).filter(Boolean).join(' '):'未设置'} <button class="edit-btn" onclick="editLocation()">编辑位置</button></p>
           ${currentUser.image?`<img src="${currentUser.image}" class="profile-image" alt="个人图片">`:''}
         </div>
@@ -541,17 +542,88 @@
           <input type="password" id="rolePassword" placeholder="输入权限密码" style="width:auto;">
           <button onclick="promoteRole()" class="edit-btn" style="margin-left:5px;">确认</button>
           <span id="roleMsg" style="color:red; margin-left:10px;"></span>
+          <br>
+          <p style="margin-top:10px;"><strong>申请审核员</strong></p>
+          <input type="text" id="applyReviewInput" placeholder="输入‘我要当审核’" style="width:auto;">
+          <button onclick="applyReview()" class="edit-btn">申请</button>
+          <span id="applyMsg" style="color:green; margin-left:10px;"></span>
         </div>`;
       if(currentUser.role==='admin'||currentUser.role==='superadmin'){
-        html += `<div class="admin-panel"><h3>管理员控制台</h3><button onclick="loadAllUsers()" class="edit-btn">查看所有用户ID</button><div id="allUsersList" style="margin-top:10px;"></div></div>`;
+        html += `<div class="admin-panel"><h3>管理员控制台</h3><button onclick="loadAllUsers()" class="edit-btn">查看所有用户ID</button><div id="allUsersList" style="margin-top:10px;"></div><button onclick="loadReviewApplications()" class="edit-btn" style="margin-top:5px;">审核员申请</button><div id="reviewAppsList" style="margin-top:10px;"></div></div>`;
       }
       if(currentUser.role==='superadmin'){
         html += `<div class="admin-panel"><h3>站主控制台</h3><button onclick="loadAdmins()" class="edit-btn">管理管理员</button><ul id="adminList" class="admin-list" style="margin-top:10px;"></ul></div>`;
+      }
+      if(currentUser.role==='reviewer'){
+        html += `<div class="admin-panel"><h3>审核员面板</h3><button onclick="loadPending()" class="edit-btn">查看待审核内容</button><div id="pendingList" style="margin-top:10px;"></div></div>`;
       }
       html += `<div class="admin-panel" style="margin-top:20px;"><h3>🗂️ 稿件管理</h3><div id="userArticlesManage">加载中...</div></div>`;
       html += `<div style="margin-top:25px; border-top:1px dashed #EEDDCC; padding-top:15px;"><button class="demote-btn" onclick="deleteAccount()" style="width:100%;">🗑️ 注销账号</button></div>`;
       container.innerHTML = html;
       loadUserArticlesForManagement();
+    }
+
+    async function dailyClaim(){
+      const res = await fetch('/daily-claim',{method:'POST',headers:{'x-user-id':currentUser.id}});
+      const data = await res.json();
+      if(data.error) alert(data.error);
+      else { currentUser.coins = data.coins; renderProfile(); alert('签到成功，获得1硬币！'); }
+    }
+
+    async function applyReview(){
+      const input = document.getElementById('applyReviewInput').value.trim();
+      if(input !== '我要当审核') return alert('请输入正确的文字');
+      const res = await fetch('/apply-reviewer',{method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id}});
+      const data = await res.json();
+      if(data.error) alert(data.error);
+      else { document.getElementById('applyMsg').textContent = '申请已发送'; }
+    }
+
+    async function loadReviewApplications(){
+      const res = await fetch('/review-applications',{headers:{'x-user-id':currentUser.id}});
+      const data = await res.json();
+      if(data.error) return alert(data.error);
+      const container = document.getElementById('reviewAppsList');
+      if(!data.applications.length) container.innerHTML = '<p>暂无申请</p>';
+      else container.innerHTML = data.applications.map(a=>`<div style="margin:5px 0;">${a.nickname} <button class="edit-btn" onclick="handleReviewApp('${a.id}','accept')">同意</button> <button class="demote-btn" onclick="handleReviewApp('${a.id}','reject')">拒绝</button></div>`).join('');
+    }
+
+    async function handleReviewApp(id, action){
+      const res = await fetch(`/review-application/${id}`,{method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({action})});
+      const data = await res.json();
+      if(data.error) alert(data.error);
+      else loadReviewApplications();
+    }
+
+    async function loadPending(){
+      const res = await fetch('/pending-list',{headers:{'x-user-id':currentUser.id}});
+      const data = await res.json();
+      if(data.error) return alert(data.error);
+      const container = document.getElementById('pendingList');
+      let html = '<h4>待审核文章</h4>';
+      if(!data.articles.length) html += '<p>暂无</p>';
+      else data.articles.forEach(a=>{
+        html += `<div style="margin:5px 0; border:1px solid #ccc; padding:5px;">${a.title} by ${a.author} <button class="edit-btn" onclick="approveItem('article','${a.id}')">通过</button> <button class="demote-btn" onclick="rejectItem('article','${a.id}')">拒绝</button></div>`;
+      });
+      html += '<h4>待审核视频</h4>';
+      if(!data.videos.length) html += '<p>暂无</p>';
+      else data.videos.forEach(v=>{
+        html += `<div style="margin:5px 0; border:1px solid #ccc; padding:5px;">${v.title} by ${v.author} <button class="edit-btn" onclick="approveItem('video','${v.id}')">通过</button> <button class="demote-btn" onclick="rejectItem('video','${v.id}')">拒绝</button></div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    async function approveItem(type, id){
+      const res = await fetch(`/approve/${type}/${id}`,{method:'POST',headers:{'x-user-id':currentUser.id}});
+      const data = await res.json();
+      if(data.error) alert(data.error);
+      else loadPending();
+    }
+    async function rejectItem(type, id){
+      const res = await fetch(`/reject/${type}/${id}`,{method:'POST',headers:{'x-user-id':currentUser.id}});
+      const data = await res.json();
+      if(data.error) alert(data.error);
+      else loadPending();
     }
 
     async function loadUserArticlesForManagement(){
@@ -568,7 +640,7 @@
       const res = await fetch(`/articles/${articleId}`,{method:'DELETE',headers:{'x-user-id':currentUser.id}});
       const data = await res.json();
       if(data.error) alert(data.error);
-      else { loadUserArticlesForManagement(); loadMyArticles(); }
+      else { loadUserArticlesForManagement(); loadPublicFeed(); }
     }
 
     async function deleteAccount(){
@@ -659,23 +731,22 @@
       });
     }
 
-    // ========== 个人文集 ==========
-    let myArticlesSort = 'latest';
-    async function loadMyArticles() {
-      if (!currentUser) return;
-      const res = await fetch(`/my-articles?sort=${myArticlesSort}&userId=${currentUser.id}`);
+    // ========== 个人精文报（公开广场） ==========
+    let publicFeedSort = 'latest';
+    async function loadPublicFeed() {
+      const res = await fetch(`/public-feed?sort=${publicFeedSort}`);
       const articles = await res.json();
-      renderMyArticles(articles);
+      renderPublicFeed(articles);
     }
-    function renderMyArticles(articles) {
+    function renderPublicFeed(articles) {
       const container = document.getElementById('myArticlesContainer');
       const predefinedTags = ["政治","经济","军事","社会运动","演讲","文艺"];
       const tagCheckboxes = predefinedTags.map(tag => `<label><input type="checkbox" value="${tag}" class="tag-checkbox">${tag}</label>`).join('');
-      const formHtml = `<div class="post-form"><h3>发表新文章</h3><input type="text" id="newTitle" placeholder="文章标题"><textarea id="newContent" rows="6" placeholder="正文内容..."></textarea><div class="tag-selector"><strong>标签（必选）：</strong>${tagCheckboxes}<input type="text" class="custom-tag-input" id="customTags" placeholder="自定义，逗号分隔"></div><button onclick="publishArticle()">发布</button></div><div class="sort-bar"><button class="${myArticlesSort==='latest'?'active-sort':''}" onclick="setSort('latest')">最新</button><button class="${myArticlesSort==='hot'?'active-sort':''}" onclick="setSort('hot')">热门</button></div>`;
+      const formHtml = `<div class="post-form"><h3>发表新文章（支持HTML）</h3><input type="text" id="newTitle" placeholder="文章标题"><textarea id="newContent" rows="6" placeholder="正文内容...（支持<b>加粗</b>、<h3>小标题</h3>等HTML标签）"></textarea><div class="tag-selector"><strong>标签（必选）：</strong>${tagCheckboxes}<input type="text" class="custom-tag-input" id="customTags" placeholder="自定义，逗号分隔"></div><button onclick="publishArticle()">发布</button></div><div class="sort-bar"><button class="${publicFeedSort==='latest'?'active-sort':''}" onclick="setFeedSort('latest')">最新</button><button class="${publicFeedSort==='hot'?'active-sort':''}" onclick="setFeedSort('hot')">热门</button></div>`;
       if (!articles.length) container.innerHTML = formHtml + '<p style="text-align:center; color:#888;">暂无文章</p>';
-      else container.innerHTML = formHtml + articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><p>${a.content}</p><div class="action-buttons"><button class="action-btn" onclick="likeArticle('${a.id}')">👍 ${a.likes||0}</button><button class="action-btn" onclick="favArticle('${a.id}')">⭐ ${a.favorites||0}</button><button class="action-btn" onclick="coinArticle('${a.id}')">🪙 ${a.coins||0}</button><button class="action-btn" onclick="recommendArticle('${a.id}')">📢 推荐 ${a.recommends||0}</button></div></div>`).join('');
+      else container.innerHTML = formHtml + articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><div style="margin:10px 0;">${a.content}</div><div class="action-buttons"><button class="action-btn" onclick="likeArticle('${a.id}')">👍 ${a.likes||0}</button><button class="action-btn" onclick="favArticle('${a.id}')">⭐ ${a.favorites||0}</button><button class="action-btn" onclick="coinArticle('${a.id}')">🪙 ${a.coins||0}</button></div></div>`).join('');
     }
-    function setSort(sort) { myArticlesSort = sort; loadMyArticles(); }
+    function setFeedSort(sort) { publicFeedSort = sort; loadPublicFeed(); }
     async function publishArticle() {
       const title = document.getElementById('newTitle').value.trim();
       const content = document.getElementById('newContent').value.trim();
@@ -688,12 +759,26 @@
       const res = await fetch('/publish', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,content,tags:selectedTags}) });
       const data = await res.json();
       if (data.error) alert(data.error);
-      else loadMyArticles();
+      else loadPublicFeed();
     }
-    async function likeArticle(articleId) { await fetch(`/articles/${articleId}/like`, { method:'POST' }); loadMyArticles(); }
-    async function favArticle(articleId) { await fetch(`/articles/${articleId}/favorite`, { method:'POST' }); loadMyArticles(); }
-    async function coinArticle(articleId) { await fetch(`/articles/${articleId}/coin`, { method:'POST' }); loadMyArticles(); }
-    async function recommendArticle(articleId) { await fetch(`/articles/${articleId}/recommend`, { method:'POST',headers:{'x-user-id':currentUser.id} }); loadMyArticles(); }
+    async function likeArticle(articleId) {
+      const res = await fetch(`/articles/${articleId}/like`, { method:'POST',headers:{'x-user-id':currentUser.id} });
+      const data = await res.json();
+      if(data.error) alert(data.error);
+      else loadPublicFeed();
+    }
+    async function favArticle(articleId) {
+      const res = await fetch(`/articles/${articleId}/favorite`, { method:'POST',headers:{'x-user-id':currentUser.id} });
+      const data = await res.json();
+      if(data.error) alert(data.error);
+      else loadPublicFeed();
+    }
+    async function coinArticle(articleId) {
+      const res = await fetch(`/articles/${articleId}/coin`, { method:'POST',headers:{'x-user-id':currentUser.id} });
+      const data = await res.json();
+      if(data.error) alert(data.error);
+      else loadPublicFeed();
+    }
 
     // ========== 其他文集 ==========
     async function loadPublicArticles() {
@@ -701,19 +786,20 @@
       const articles = await res.json();
       const container = document.getElementById('publicArticlesList');
       if (!articles.length) container.innerHTML = '<p style="color:#888;">暂无文章，点击下方按钮刊登。</p>';
-      else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><p>${a.content}</p></div>`).join('');
+      else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><div style="margin:10px 0;">${a.content}</div></div>`).join('');
     }
     function showAddPublicArticle() {
+      if (!currentUser) return alert('请先登录');
       const pwd = prompt('请输入刊登密码：');
       if (pwd !== '12321') return alert('密码错误');
       const title = prompt('文章标题：');
       if (!title) return;
-      const content = prompt('文章内容：');
+      const content = prompt('文章内容（支持HTML）：');
       if (!content) return;
       const tagsInput = prompt('请输入标签（用逗号分隔，如：政治,经济）：');
       const tags = tagsInput ? tagsInput.split(',').map(s => s.trim()).filter(Boolean) : [];
       if (tags.length === 0) return alert('至少需要一个标签');
-      fetch('/publish-public', { method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,content,password:pwd,tags}) }).then(r=>r.json()).then(data=>{ if(data.error) alert(data.error); else loadPublicArticles(); });
+      fetch('/publish-public', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,content,password:pwd,tags}) }).then(r=>r.json()).then(data=>{ if(data.error) alert(data.error); else alert('投稿已提交审核'); });
     }
 
     // ========== 全文区 ==========
@@ -722,7 +808,7 @@
       const articles = await res.json();
       const container = document.getElementById('fulltextArticlesList');
       if (!articles.length) container.innerHTML = '<p style="color:#888;">暂无全文，管理员或站主可在此刊登。</p>';
-      else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><p>${a.content}</p><div class="action-buttons"><button class="action-btn" onclick="recommendArticle('${a.id}')">📢 推荐 ${a.recommends||0}</button></div></div>`).join('');
+      else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><div style="margin:10px 0;">${a.content}</div><div class="action-buttons"><button class="action-btn" onclick="recommendArticle('${a.id}')">📢 推荐 ${a.recommends||0}</button></div></div>`).join('');
     }
     function showAddFulltext() {
       if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'superadmin')) return alert('仅管理员或站主可刊登');
@@ -737,6 +823,7 @@
       if (tags.length === 0) return alert('至少需要一个标签');
       fetch('/publish-fulltext', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,content,tags,password:pwd}) }).then(r=>r.json()).then(data=>{ if(data.error) alert(data.error); else loadFulltextArticles(); });
     }
+    async function recommendArticle(articleId) { await fetch(`/articles/${articleId}/recommend`, { method:'POST',headers:{'x-user-id':currentUser.id} }); loadFulltextArticles(); }
 
     // ========== 国际共运 ==========
     async function loadIntcomArticles() {
@@ -779,11 +866,21 @@
       if (!title || !url) return alert('标题和链接不能为空');
       const res = await fetch('/upload-video', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,url,desc}) });
       const data = await res.json();
-      if (data.error) alert(data.error);
-      else { loadVideos(videoSort); document.getElementById('videoTitle').value=''; document.getElementById('videoUrl').value=''; document.getElementById('videoDesc').value=''; }
+      if(data.error) alert(data.error);
+      else { alert('视频已提交审核'); document.getElementById('videoTitle').value=''; document.getElementById('videoUrl').value=''; document.getElementById('videoDesc').value=''; }
     }
-    async function likeVideo(videoId) { await fetch(`/videos/${videoId}/like`, { method:'POST',headers:{'x-user-id':currentUser.id} }); loadVideos(videoSort); }
-    async function favVideo(videoId) { await fetch(`/videos/${videoId}/favorite`, { method:'POST',headers:{'x-user-id':currentUser.id} }); loadVideos(videoSort); }
+    async function likeVideo(videoId) {
+      const res = await fetch(`/videos/${videoId}/like`, { method:'POST',headers:{'x-user-id':currentUser.id} });
+      const data = await res.json();
+      if(data.error) alert(data.error);
+      else loadVideos(videoSort);
+    }
+    async function favVideo(videoId) {
+      const res = await fetch(`/videos/${videoId}/favorite`, { method:'POST',headers:{'x-user-id':currentUser.id} });
+      const data = await res.json();
+      if(data.error) alert(data.error);
+      else loadVideos(videoSort);
+    }
     async function showVideoComments(videoId) {
       const container = document.getElementById('comments-'+videoId);
       if (container.style.display === 'none') {
@@ -810,8 +907,8 @@
       if (!title || !url) return alert('标题和链接不能为空');
       const res = await fetch('/upload-video', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,url,desc}) });
       const data = await res.json();
-      if (data.error) alert(data.error);
-      else { alert('投稿成功'); document.getElementById('submitVideoTitle').value=''; document.getElementById('submitVideoUrl').value=''; document.getElementById('submitVideoDesc').value=''; }
+      if(data.error) alert(data.error);
+      else { alert('视频已提交审核'); document.getElementById('submitVideoTitle').value=''; document.getElementById('submitVideoUrl').value=''; document.getElementById('submitVideoDesc').value=''; }
     }
     async function submitArticle() {
       if (!currentUser) return alert('请先登录');
@@ -840,11 +937,18 @@
       else data.requests.forEach(r => { html += `<div style="margin:5px 0;">${r.fromName} (ID: ${r.fromId}) <button class="edit-btn" onclick="acceptFriend('${r.id}')">同意</button> <button class="demote-btn" onclick="rejectFriend('${r.id}')">拒绝</button></div>`; });
       html += '<h3 style="margin-top:20px;">👥 好友列表</h3>';
       if (data.friends.length === 0) html += '<p>暂无好友</p>';
-      else data.friends.forEach(f => { html += `<div>${f.name} (ID: ${f.id})</div>`; });
+      else data.friends.forEach(f => { html += `<div style="display:flex; justify-content:space-between; margin:5px 0;"><span>${f.name} (ID: ${f.id})</span><button class="demote-btn" onclick="removeFriend('${f.name}')">删除</button></div>`; });
       html += '<h3 style="margin-top:20px;">🔔 通知</h3>';
       if (data.notifications.length === 0) html += '<p>暂无通知</p>';
       else data.notifications.forEach(n => { html += `<div style="margin:5px 0; border-bottom:1px solid #EEDDCC;">${n.message} <span style="color:#888;">${new Date(n.timestamp).toLocaleString()}</span></div>`; });
       container.innerHTML = html;
+    }
+    async function removeFriend(friendName) {
+      if(!confirm('确定删除好友？')) return;
+      const res = await fetch('/friend/remove', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({friendName}) });
+      const data = await res.json();
+      if(data.error) alert(data.error);
+      else { loadMailbox(); socket.emit('getMyFriends'); }
     }
     async function acceptFriend(requestId) {
       const res = await fetch('/friend/accept', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({requestId}) });
@@ -863,9 +967,7 @@
     async function searchArticles() {
       const keyword = document.getElementById('searchInput').value.trim();
       if (!keyword) return alert('请输入关键词');
-      const [myRes, pubRes, fullRes, intcomRes] = await Promise.all([
-        fetch('/all-my-articles'), fetch('/public-articles'), fetch('/fulltext-articles'), fetch('/intcom-articles')
-      ]);
+      const [myRes, pubRes, fullRes, intcomRes] = await Promise.all([fetch('/public-feed'), fetch('/public-articles'), fetch('/fulltext-articles'), fetch('/intcom-articles')]);
       const allDynamic = [...(await myRes.json()), ...(await pubRes.json()), ...(await fullRes.json()), ...(await intcomRes.json())];
       const allMentor = mentorArticles.map((a, i) => ({ id:'mentor_'+i, title:a.title, author:a.author, content:'', tags:a.tags, timestamp:0 }));
       const combined = [...allMentor, ...allDynamic];
@@ -879,7 +981,7 @@
       });
       const container = document.getElementById('searchResults');
       if (results.length === 0) container.innerHTML = '<p style="color:#888;">未找到相关文章。</p>';
-      else container.innerHTML = results.map(r => `<div class="search-result-item"><strong>${r.title}</strong> <span style="color:#888;">—— ${r.author}</span><div>${r.tags ? r.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div>${r.content ? `<p style="margin-top:5px;">${r.content.substring(0,100)}...</p>` : ''}</div>`).join('');
+      else container.innerHTML = results.map(r => `<div class="search-result-item"><strong>${r.title}</strong> <span style="color:#888;">—— ${r.author}</span><div>${r.tags ? r.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div>${r.content ? `<p style="margin-top:5px;">${r.content.substring(0,100).replace(/<[^>]*>/g,'')}...</p>` : ''}</div>`).join('');
     }
 
     // ========== Socket 聊天 ==========
