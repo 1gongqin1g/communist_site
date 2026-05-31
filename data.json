@@ -1,0 +1,33 @@
+{
+  "users": {
+    "i": {
+      "id": "7004369463",
+      "nickname": "i",
+      "password": "i",
+      "location": {},
+      "image": null,
+      "role": "user",
+      "notifications": []
+    }
+  },
+  "friends": {
+    "i": []
+  },
+  "groups": [
+    {
+      "id": "7146212390",
+      "name": "j",
+      "members": [
+        "7004369463"
+      ],
+      "ownerId": "7004369463"
+    }
+  ],
+  "messages": {},
+  "articles": [],
+  "publicArticles": [],
+  "fulltextArticles": [],
+  "intcomArticles": [],
+  "videos": [],
+  "friendRequests": []
+}
