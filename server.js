@@ -11,7 +11,7 @@ app.use(cors());
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// ========== 数据与文件目录 ==========
+// ========== 数据与文件目录（支持 Railway Volume） ==========
 const DATA_DIR = process.env.DATA_DIR || __dirname;
 const DATA_FILE = path.join(DATA_DIR, 'data.json');
 const uploadDir = path.join(DATA_DIR, 'uploads');
@@ -29,6 +29,9 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.static(__dirname));
 app.use('/uploads', express.static(uploadDir));
 
+// ========== 健康检查（必须保留） ==========
+app.get('/health', (req, res) => res.status(200).send('OK'));
+
 // ========== 显式首页 ==========
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
@@ -38,16 +41,16 @@ let data = {
   friends: {},
   groups: [],
   messages: {},
-  articles: [],           // 个人精文报（公开）
-  publicArticles: [],     // 其他文集（需审核）
+  articles: [],
+  publicArticles: [],
   fulltextArticles: [],
   intcomArticles: [],
   videos: [],
   friendRequests: [],
   worldMessages: [],
-  pendingArticles: [],    // 待审核的其他文集
-  pendingVideos: [],      // 待审核的视频
-  reviewApplications: []  // 审核员申请
+  pendingArticles: [],
+  pendingVideos: [],
+  reviewApplications: []
 };
 if (fs.existsSync(DATA_FILE)) {
   data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
@@ -111,7 +114,6 @@ app.post('/delete-account', (req, res) => {
   const user = getUserById(userId);
   if (!user) return res.json({ error: '用户不存在' });
   const nickname = user.nickname;
-  // 删除好友关系
   if (data.friends[nickname]) {
     data.friends[nickname].forEach(friendName => {
       if (data.friends[friendName]) {
@@ -154,7 +156,7 @@ app.post('/daily-claim', (req, res) => {
   res.json({ coins: user.coins });
 });
 
-// ========== 好友管理 ==========
+// ========== 好友管理（添加/删除/申请） ==========
 app.post('/friend/remove', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
@@ -391,7 +393,7 @@ app.post('/reject/:type/:id', (req, res) => {
   res.json({ success: true });
 });
 
-// ========== 全文区/国际共运（保持不变） ==========
+// ========== 全文区/国际共运（不变） ==========
 app.get('/fulltext-articles', (req, res) => res.json(data.fulltextArticles || []));
 app.post('/publish-fulltext', (req, res) => {
   const userId = req.headers['x-user-id'];
@@ -424,11 +426,285 @@ app.post('/publish-intcom', (req, res) => {
   res.json({ success: true });
 });
 
-// 其余API（个人主页、权限、群组、信箱、Socket等）保持不变，请将原完整代码中的其余部分粘贴于此
-// ...（由于篇幅限制，此处省略了已存在的其他API，你需要将之前版本中的 updateLocation、upload-image、promote、群组管理等全部保留）
+// ========== 个人主页、权限等原有API（保留） ==========
+app.post('/updateLocation', (req, res) => {
+  const { id, location } = req.body;
+  const user = getUserById(id);
+  if (!user) return res.json({ error: '用户不存在' });
+  user.location = location;
+  saveData();
+  res.json({ success: true });
+});
 
-// ========== 启动服务器 ==========
+app.post('/upload-image', (req, res) => {
+  const userId = req.headers['x-user-id'];
+  const user = getUserById(userId);
+  if (!user) return res.json({ error: '未登录' });
+  user.image = req.body.image;
+  saveData();
+  res.json({ success: true });
+});
+
+app.get('/user/:id', (req, res) => {
+  const user = Object.values(data.users).find(u => u.id === req.params.id);
+  if (!user) return res.json({ error: '用户不存在' });
+  res.json({ id: user.id, nickname: user.nickname, location: user.location, image: user.image || null });
+});
+
+app.post('/promote', (req, res) => {
+  const userId = req.headers['x-user-id'];
+  const user = getUserById(userId);
+  if (!user) return res.json({ error: '未登录' });
+  const { password } = req.body;
+  if (password === '9999') { user.role = 'admin'; saveData(); return res.json({ role: 'admin' }); }
+  else if (password === '0000') { user.role = 'superadmin'; saveData(); return res.json({ role: 'superadmin' }); }
+  else return res.json({ error: '密码错误' });
+});
+
+app.get('/users/list', (req, res) => {
+  const user = getUserById(req.headers['x-user-id']);
+  if (!user || (user.role !== 'admin' && user.role !== 'superadmin')) return res.json({ error: '权限不足' });
+  res.json({ users: Object.values(data.users).map(u => ({ id: u.id, nickname: u.nickname })) });
+});
+
+app.get('/admin/list', (req, res) => {
+  const user = getUserById(req.headers['x-user-id']);
+  if (!user || user.role !== 'superadmin') return res.json({ error: '权限不足' });
+  const admins = Object.values(data.users).filter(u => u.role === 'admin').map(u => ({ id: u.id, nickname: u.nickname }));
+  res.json({ admins });
+});
+
+app.post('/admin/demote', (req, res) => {
+  const user = getUserById(req.headers['x-user-id']);
+  if (!user || user.role !== 'superadmin') return res.json({ error: '权限不足' });
+  const target = getUserById(req.body.targetUserId);
+  if (!target) return res.json({ error: '用户不存在' });
+  target.role = 'user';
+  saveData();
+  res.json({ success: true });
+});
+
+// ========== 群组管理 ==========
+app.get('/group/:id/members', (req, res) => {
+  const group = data.groups.find(g => g.id === req.params.id);
+  if (!group || !group.members.includes(req.headers['x-user-id'])) return res.json({ error: '无权限' });
+  const members = group.members.map(mid => {
+    const u = getUserById(mid);
+    return u ? { id: u.id, nickname: u.nickname } : { id: mid, nickname: '未知' };
+  });
+  res.json({ members });
+});
+app.post('/group/:id/invite', (req, res) => {
+  const userId = req.headers['x-user-id'];
+  const group = data.groups.find(g => g.id === req.params.id);
+  if (!group || group.ownerId !== userId) return res.json({ error: '只有群主可邀请' });
+  const target = getUserById(req.body.targetUserId);
+  if (!target) return res.json({ error: '用户不存在' });
+  if (group.members.includes(target.id)) return res.json({ error: '已在群中' });
+  group.members.push(target.id);
+  saveData();
+  const targetSocket = findSocketByUserId(target.id);
+  if (targetSocket) targetSocket.emit('updateGroups', data.groups.filter(g => g.members.includes(target.id)));
+  res.json({ success: true });
+});
+app.post('/group/:id/kick', (req, res) => {
+  const userId = req.headers['x-user-id'];
+  const group = data.groups.find(g => g.id === req.params.id);
+  if (!group || group.ownerId !== userId) return res.json({ error: '只有群主可踢人' });
+  const targetId = req.body.targetUserId;
+  if (targetId === group.ownerId) return res.json({ error: '不能踢出群主' });
+  const index = group.members.indexOf(targetId);
+  if (index === -1) return res.json({ error: '该用户不在群中' });
+  group.members.splice(index, 1);
+  saveData();
+  const targetSocket = findSocketByUserId(targetId);
+  if (targetSocket) targetSocket.emit('updateGroups', data.groups.filter(g => g.members.includes(targetId)));
+  res.json({ success: true });
+});
+app.get('/group/:id/files', (req, res) => {
+  const group = data.groups.find(g => g.id === req.params.id);
+  if (!group) return res.json({ error: '群不存在' });
+  if (!group.files) group.files = [];
+  res.json({ files: group.files });
+});
+app.post('/group/upload', upload.single('file'), (req, res) => {
+  const userId = req.headers['x-user-id'];
+  const group = data.groups.find(g => g.id === req.body.groupId);
+  if (!group || !group.members.includes(userId)) return res.json({ error: '无权限' });
+  if (!req.file) return res.json({ error: '未上传文件' });
+  const fileInfo = {
+    originalName: req.file.originalname, filename: req.file.filename,
+    url: '/uploads/' + req.file.filename, timestamp: Date.now(), uploaderId: userId
+  };
+  if (!group.files) group.files = [];
+  group.files.push(fileInfo);
+  saveData();
+  group.members.forEach(mid => {
+    const s = findSocketByUserId(mid);
+    if (s) s.emit('groupFilesUpdated', req.body.groupId);
+  });
+  res.json({ success: true });
+});
+
+// ========== 信箱 ==========
+app.get('/mailbox', (req, res) => {
+  const userId = req.headers['x-user-id'];
+  const user = getUserById(userId);
+  if (!user) return res.json({ error: '未登录' });
+  const requests = data.friendRequests.filter(r => r.toUserId === userId && r.status === 'pending').map(r => ({
+    id: r.id, fromId: r.fromUserId, fromName: getUserById(r.fromUserId)?.nickname || '未知'
+  }));
+  const friendNames = data.friends[user.nickname] || [];
+  const friends = friendNames.map(name => ({ id: data.users[name]?.id || name, name }));
+  const notifications = (user.notifications || []).slice(-20).reverse();
+  res.json({ requests, friends, notifications });
+});
+app.post('/friend/accept', (req, res) => {
+  const userId = req.headers['x-user-id'];
+  const user = getUserById(userId);
+  if (!user) return res.json({ error: '未登录' });
+  const request = data.friendRequests.find(r => r.id === req.body.requestId && r.toUserId === userId);
+  if (!request) return res.json({ error: '请求不存在' });
+  request.status = 'accepted';
+  const friendUser = getUserById(request.fromUserId);
+  if (!friendUser) return res.json({ error: '对方不存在' });
+  if (!data.friends[user.nickname]) data.friends[user.nickname] = [];
+  data.friends[user.nickname].push(friendUser.nickname);
+  if (!data.friends[friendUser.nickname]) data.friends[friendUser.nickname] = [];
+  data.friends[friendUser.nickname].push(user.nickname);
+  saveData();
+  const fromSocket = findSocketByUserId(request.fromUserId);
+  if (fromSocket) fromSocket.emit('refreshFriends');
+  io.to(userId).emit('refreshFriends');
+  res.json({ success: true });
+});
+app.post('/friend/reject', (req, res) => {
+  const request = data.friendRequests.find(r => r.id === req.body.requestId && r.toUserId === req.headers['x-user-id']);
+  if (!request) return res.json({ error: '请求不存在' });
+  request.status = 'rejected';
+  saveData();
+  res.json({ success: true });
+});
+
+// ========== Socket.IO ==========
+io.on('connection', (socket) => {
+  let currentNickname = '';
+  let currentId = '';
+  socket.join('world');
+
+  socket.on('login', (nickname, userId) => {
+    currentNickname = nickname;
+    currentId = userId;
+    socket.join(userId);
+    sendFriendList(socket, nickname);
+    socket.emit('updateGroups', data.groups.filter(g => g.members.includes(userId)).map(g => ({
+      id: g.id, name: g.name, members: g.members, ownerId: g.ownerId
+    })));
+    socket.emit('worldHistory', data.worldMessages || []);
+  });
+
+  socket.on('requestFriend', (targetId) => {
+    if (targetId === currentId) return socket.emit('errorMsg', '不能添加自己');
+    const targetUser = getUserById(targetId);
+    if (!targetUser) return socket.emit('errorMsg', '该ID不存在');
+    const existing = data.friendRequests.find(r => r.fromUserId === currentId && r.toUserId === targetId && r.status === 'pending');
+    if (existing) return socket.emit('errorMsg', '已发送申请');
+    data.friendRequests.push({ id: generateUniqueId(), fromUserId: currentId, toUserId: targetId, status: 'pending', timestamp: Date.now() });
+    saveData();
+    const targetSocket = findSocketByUserId(targetId);
+    if (targetSocket) targetSocket.emit('refreshFriends');
+    socket.emit('errorMsg', '申请已发送');
+  });
+
+  socket.on('getMyFriends', () => {
+    const friendNames = data.friends[currentNickname] || [];
+    socket.emit('updateFriends', friendNames.map(name => ({ id: data.users[name]?.id || name, name })));
+  });
+
+  socket.on('createGroup', ({ name, members }) => {
+    members.push(currentId);
+    members = [...new Set(members)];
+    const group = { id: generateUniqueId(), name, members, ownerId: currentId };
+    data.groups.push(group);
+    saveData();
+    members.forEach(mid => {
+      const s = findSocketByUserId(mid);
+      if (s) s.emit('updateGroups', data.groups.filter(g => g.members.includes(mid)).map(g => ({
+        id: g.id, name: g.name, members: g.members, ownerId: g.ownerId
+      })));
+    });
+  });
+
+  socket.on('sendMessage', ({ targetType, targetId, content }) => {
+    const msg = { from: currentNickname, targetType, targetId, content, timestamp: Date.now() };
+    const key = targetType + '-' + targetId;
+    if (!data.messages[key]) data.messages[key] = [];
+    data.messages[key].push(msg);
+    saveData();
+    if (targetType === 'friend') {
+      const friendUser = getUserById(targetId);
+      if (friendUser) {
+        const targetSocket = findSocketByNickname(friendUser.nickname);
+        if (targetSocket) targetSocket.emit('newMessage', msg);
+        socket.emit('newMessage', msg);
+      }
+    } else if (targetType === 'group') {
+      const group = data.groups.find(g => g.id === targetId);
+      if (group) {
+        group.members.forEach(mid => {
+          const s = findSocketByUserId(mid);
+          if (s) s.emit('newMessage', msg);
+        });
+      }
+    }
+  });
+
+  socket.on('getHistory', ({ type, id }) => {
+    socket.emit('history', data.messages[type + '-' + id] || []);
+  });
+
+  socket.on('worldMessage', (content) => {
+    if (!currentNickname) return;
+    const msg = { from: currentNickname, content, timestamp: Date.now() };
+    data.worldMessages.push(msg);
+    if (data.worldMessages.length > 100) data.worldMessages.shift();
+    saveData();
+    io.to('world').emit('worldMessage', msg);
+  });
+
+  socket.on('disconnect', () => {
+    socket.leave('world');
+  });
+});
+
+function sendFriendList(socket, nickname) {
+  const friendNames = data.friends[nickname] || [];
+  socket.emit('updateFriends', friendNames.map(name => ({ id: data.users[name]?.id || name, name })));
+}
+
+function findSocketByNickname(nickname) {
+  for (let [id, s] of io.of('/').sockets) { if (s.currentNickname === nickname) return s; }
+  return null;
+}
+function findSocketByUserId(userId) {
+  for (let [id, s] of io.of('/').sockets) { if (s.currentId === userId) return s; }
+  return null;
+}
+
+io.use((socket, next) => {
+  socket.currentNickname = '';
+  socket.currentId = '';
+  const originalOn = socket.on.bind(socket);
+  socket.on = (event, handler) => {
+    if (event === 'login') return originalOn(event, (nickname, userId) => {
+      socket.currentNickname = nickname; socket.currentId = userId; handler(nickname, userId);
+    });
+    return originalOn(event, handler);
+  };
+  next();
+});
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ 服务器已启动，端口 ${PORT}`);
+  console.log(`✅ 服务器已成功启动，端口 ${PORT}，健康检查 /health 可用`);
 });
