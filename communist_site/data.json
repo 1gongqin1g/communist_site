@@ -1,0 +1,24 @@
+{
+  "users": {
+    "i": {
+      "id": "7004369463",
+      "nickname": "i",
+      "password": "i",
+      "location": {},
+      "image": null,
+      "role": "user",
+      "notifications": []
+    }
+  },
+  "friends": {
+    "i": []
+  },
+  "groups": [],
+  "messages": {},
+  "articles": [],
+  "publicArticles": [],
+  "fulltextArticles": [],
+  "intcomArticles": [],
+  "videos": [],
+  "friendRequests": []
+}
