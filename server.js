@@ -26,10 +26,16 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(__dirname));           // 托管静态文件
-app.use('/uploads', express.static(uploadDir)); // 上传文件访问
 
-// ========== 显式首页路由（保底，避免 404） ==========
+// ========== 健康检查（Railway 必需） ==========
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+// ========== 静态文件 & 首页 ==========
+app.use(express.static(__dirname));
+app.use('/uploads', express.static(uploadDir));
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
