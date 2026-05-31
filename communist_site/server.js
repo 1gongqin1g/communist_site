@@ -4,14 +4,22 @@ const socketIo = require('socket.io');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
+const cors = require('cors');
 
 const app = express();
+app.use(cors()); // 允许跨域，保险起见
+
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// 文件上传
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+// ========== 数据与文件目录（支持 Railway Volume） ==========
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+const DATA_FILE = path.join(DATA_DIR, 'data.json');
+const uploadDir = path.join(DATA_DIR, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
@@ -19,11 +27,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(__dirname));
-app.use('/uploads', express.static(uploadDir));
+app.use(express.static(__dirname));         // 提供 index.html 等静态文件
+app.use('/uploads', express.static(uploadDir)); // 提供上传的文件
 
-// 数据文件
-const DATA_FILE = path.join(__dirname, 'data.json');
+// ========== 数据初始化 ==========
 let data = {
   users: {},
   friends: {},
@@ -38,6 +45,7 @@ let data = {
 };
 if (fs.existsSync(DATA_FILE)) {
   data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+  // 补全新字段
   if (!data.intcomArticles) data.intcomArticles = [];
   if (!data.videos) data.videos = [];
   if (!data.friendRequests) data.friendRequests = [];
@@ -572,7 +580,8 @@ io.use((socket, next) => {
   next();
 });
 
-const PORT = 3000;
+// ========== 启动 ==========
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`交流站服务器已启动，访问 http://localhost:${PORT}`);
 });
