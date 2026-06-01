@@ -253,7 +253,6 @@
         </div>
       </div>
     </div>
-
     <!-- 名人文章 -->
     <div id="articles" class="page">
       <div class="article-card">
@@ -263,8 +262,22 @@
         <div class="author-section"><div class="author-name">弗拉基米尔·列宁</div><ul class="article-list"><li>《怎么办？》</li><li>《唯物主义和经验批判主义》</li><li>《帝国主义是资本主义的最高阶段》</li><li>《国家与革命》</li><li>《共产主义运动中的“左派”幼稚病》</li><li>《伟大的创举》</li></ul></div>
         <div class="author-section"><div class="author-name">约瑟夫·斯大林</div><ul class="article-list"><li>《论列宁主义基础》</li><li>《马克思主义和语言学问题》</li><li>《苏联社会主义经济问题》</li></ul></div>
         <div class="author-section"><div class="author-name">毛泽东</div><ul class="article-list"><li>《中国社会各阶级的分析》</li><li>《湖南农民运动考察报告》</li><li>《星星之火，可以燎原》</li><li>《反对本本主义》</li><li>《实践论》</li><li>《矛盾论》</li><li>《论持久战》</li><li>《新民主主义论》</li><li>《在延安文艺座谈会上的讲话》</li><li>《为人民服务》</li><li>《愚公移山》</li></ul></div>
-        <div class="public-area"><div class="author-name">其他文集</div><div id="publicArticlesList" style="padding-left:20px;"><p style="color:#888;">暂无文章，点击下方按钮刊登。</p></div><button onclick="showAddPublicArticle()" class="add-article-btn">➕ 添加文章</button></div>
-        <div class="fulltext-area"><div class="author-name">全文区</div><div id="fulltextArticlesList" style="padding-left:20px;"><p style="color:#888;">暂无全文，管理员或站主可在此刊登。</p></div><div id="fulltextAddBtn" style="display:none; margin-top:15px;"><button onclick="showAddFulltext()" class="add-article-btn">➕ 添加全文（8888）</button></div></div>
+
+        <!-- 其他文集 -->
+        <div class="public-area">
+          <div class="author-name">其他文集</div>
+          <div id="publicArticlesList" style="padding-left:20px;"><p style="color:#888;">暂无文章，点击下方按钮刊登。</p></div>
+          <button onclick="openPublicArticleForm()" class="add-article-btn">➕ 添加文章</button>
+        </div>
+
+        <!-- 全文区 -->
+        <div class="fulltext-area">
+          <div class="author-name">全文区</div>
+          <div id="fulltextArticlesList" style="padding-left:20px;"><p style="color:#888;">暂无全文，管理员或站主可在此刊登。</p></div>
+          <div id="fulltextAddBtn" style="display:none; margin-top:15px;">
+            <button onclick="openFulltextForm()" class="add-article-btn">➕ 添加全文（8888）</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -281,7 +294,9 @@
       <div class="article-card">
         <h2>🌐 国际共运</h2>
         <div id="intcomArticlesList" style="padding-left:20px;"><p style="color:#888;">暂无文章。</p></div>
-        <div id="intcomAddBtn" style="display:none; margin:15px 0;"><button onclick="showAddIntcomArticle()" class="add-article-btn">➕ 刊登文章（世界人民大团结）</button></div>
+        <div id="intcomAddBtn" style="display:none; margin:15px 0;">
+          <button onclick="showAddIntcomArticle()" class="add-article-btn">➕ 刊登文章（世界人民大团结）</button>
+        </div>
       </div>
     </div>
 
@@ -300,7 +315,10 @@
             <button onclick="uploadVideo()">投稿</button>
           </div>
         </div>
-        <div class="sort-bar"><button class="active-sort" onclick="loadVideos('latest')">最新</button><button onclick="loadVideos('hot')">最热</button></div>
+        <div class="sort-bar">
+          <button class="active-sort" onclick="loadVideos('latest')">最新</button>
+          <button onclick="loadVideos('hot')">最热</button>
+        </div>
         <div id="videoList"></div>
       </div>
     </div>
@@ -418,14 +436,67 @@
     </div>
   </div>
 
-  <!-- 弹窗 -->
-  <div id="friendProfileModal" class="modal"><div class="modal-content" style="width:400px;"><h3>同志信息</h3><div id="friendProfileInfo"></div><button onclick="document.getElementById('friendProfileModal').style.display='none'">关闭</button></div></div>
-  <div id="groupManageModal" class="modal"><div class="modal-content" style="width:400px;"><h3>群管理</h3><div id="groupManageContent"></div><button onclick="document.getElementById('groupManageModal').style.display='none'">关闭</button></div></div>
-  <div id="groupFileModal" class="modal"><div class="modal-content" style="width:400px;"><h3>群文件</h3><div id="groupFileList"></div><input type="file" id="groupFileInput" style="display:none;" onchange="uploadGroupFile()"><button onclick="document.getElementById('groupFileInput').click()" class="edit-btn" style="margin-top:10px;">➕ 上传文件</button><button onclick="document.getElementById('groupFileModal').style.display='none'" style="margin-top:5px; background:#888;">关闭</button></div></div>
+  <!-- 弹窗：查看好友主页 -->
+  <div id="friendProfileModal" class="modal">
+    <div class="modal-content" style="width:400px;">
+      <h3>同志信息</h3>
+      <div id="friendProfileInfo"></div>
+      <button onclick="document.getElementById('friendProfileModal').style.display='none'">关闭</button>
+    </div>
+  </div>
+
+  <!-- 弹窗：群管理 -->
+  <div id="groupManageModal" class="modal">
+    <div class="modal-content" style="width:400px;">
+      <h3>群管理</h3>
+      <div id="groupManageContent"></div>
+      <button onclick="document.getElementById('groupManageModal').style.display='none'">关闭</button>
+    </div>
+  </div>
+
+  <!-- 弹窗：群文件 -->
+  <div id="groupFileModal" class="modal">
+    <div class="modal-content" style="width:400px;">
+      <h3>群文件</h3>
+      <div id="groupFileList"></div>
+      <input type="file" id="groupFileInput" style="display:none;" onchange="uploadGroupFile()">
+      <button onclick="document.getElementById('groupFileInput').click()" class="edit-btn" style="margin-top:10px;">➕ 上传文件</button>
+      <button onclick="document.getElementById('groupFileModal').style.display='none'" style="margin-top:5px; background:#888;">关闭</button>
+    </div>
+  </div>
+
+  <!-- 投稿模态框（用于其他文集和全文区） -->
+  <div id="articleSubmitModal" class="modal">
+    <div class="modal-content" style="width:450px; text-align:left;">
+      <h3 id="articleSubmitTitle">刊登文章</h3>
+      <input type="text" id="modalArticleTitle" placeholder="文章标题" style="width:100%; margin:8px 0;">
+      <textarea id="modalArticleContent" rows="5" placeholder="文章内容（支持HTML）" style="width:100%; margin:8px 0;"></textarea>
+      <div class="tag-selector">
+        <strong>标签（必选）：</strong>
+        <label><input type="checkbox" value="政治" class="modal-tag-checkbox">政治</label>
+        <label><input type="checkbox" value="经济" class="modal-tag-checkbox">经济</label>
+        <label><input type="checkbox" value="军事" class="modal-tag-checkbox">军事</label>
+        <label><input type="checkbox" value="社会运动" class="modal-tag-checkbox">社会运动</label>
+        <label><input type="checkbox" value="演讲" class="modal-tag-checkbox">演讲</label>
+        <label><input type="checkbox" value="文艺" class="modal-tag-checkbox">文艺</label>
+        <input type="text" class="custom-tag-input" id="modalCustomTags" placeholder="自定义，逗号分隔">
+      </div>
+      <div style="margin:10px 0;">
+        <strong>附件（PDF/Word）：</strong>
+        <input type="file" id="modalArticleFiles" multiple accept=".pdf,.doc,.docx" onchange="previewFiles('modalArticleFiles','modalFileList')">
+        <div id="modalFileList" style="font-size:0.9rem; color:#666;"></div>
+      </div>
+      <div style="margin:10px 0;" id="modalPasswordArea">
+        <input type="password" id="modalPassword" placeholder="刊登密码" style="width:100%;">
+      </div>
+      <button onclick="submitModalArticle()" class="edit-btn" style="width:100%;">提交</button>
+      <button onclick="closeModal()" class="demote-btn" style="width:100%; margin-top:5px;">取消</button>
+    </div>
+  </div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script>
-    // 导师文章数据
+<script>
+    // ========== 导师文章数据 ==========
     const mentorArticles = [
       { title:"《共产党宣言》", author:"卡尔·马克思 恩格斯", tags:["政治","社会运动"] },
       { title:"《资本论》第一卷", author:"卡尔·马克思", tags:["经济","政治"] },
@@ -790,7 +861,6 @@
     }
 
     async function uploadFiles(files) {
-      // 上传多个文件并返回 URL 数组
       const uploadedUrls = [];
       for (let f of files) {
         const formData = new FormData();
@@ -904,6 +974,74 @@
       else loadPublicFeed();
     }
 
+    // ========== 其他文集/全文区模态框 ==========
+    let modalType = '';
+    function openPublicArticleForm() {
+      if (!currentUser) return alert('请先登录');
+      modalType = 'public';
+      document.getElementById('articleSubmitTitle').textContent = '刊登到其他文集';
+      document.getElementById('modalPasswordArea').style.display = 'block';
+      clearModal();
+      document.getElementById('articleSubmitModal').style.display = 'flex';
+    }
+    function openFulltextForm() {
+      if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'superadmin')) return alert('仅管理员或站主可刊登');
+      modalType = 'fulltext';
+      document.getElementById('articleSubmitTitle').textContent = '刊登全文';
+      document.getElementById('modalPasswordArea').style.display = 'block';
+      clearModal();
+      document.getElementById('articleSubmitModal').style.display = 'flex';
+    }
+    function clearModal() {
+      document.getElementById('modalArticleTitle').value = '';
+      document.getElementById('modalArticleContent').value = '';
+      document.querySelectorAll('.modal-tag-checkbox').forEach(cb => cb.checked = false);
+      document.getElementById('modalCustomTags').value = '';
+      document.getElementById('modalArticleFiles').value = '';
+      document.getElementById('modalFileList').innerHTML = '';
+      document.getElementById('modalPassword').value = '';
+    }
+    function closeModal() {
+      document.getElementById('articleSubmitModal').style.display = 'none';
+    }
+
+    async function submitModalArticle() {
+      const title = document.getElementById('modalArticleTitle').value.trim();
+      const content = document.getElementById('modalArticleContent').value.trim();
+      const password = document.getElementById('modalPassword').value.trim();
+      const checkedBoxes = document.querySelectorAll('.modal-tag-checkbox:checked');
+      const selectedTags = Array.from(checkedBoxes).map(cb => cb.value);
+      const customInput = document.getElementById('modalCustomTags').value.trim();
+      if (customInput) { const customs = customInput.split(',').map(s => s.trim()).filter(Boolean); customs.forEach(t => { if (!selectedTags.includes(t)) selectedTags.push(t); }); }
+      if (selectedTags.length === 0) return alert('请至少选择一个标签');
+      if (!title) return alert('标题不能为空');
+      if (!content && document.getElementById('modalArticleFiles').files.length === 0) return alert('正文或附件至少填写一项');
+
+      const files = document.getElementById('modalArticleFiles').files;
+      const uploadedFiles = files.length > 0 ? await uploadFiles(files) : [];
+
+      let endpoint, bodyData;
+      if (modalType === 'public') {
+        endpoint = '/publish-public';
+        bodyData = { title, content, password, tags: selectedTags, files: uploadedFiles };
+      } else if (modalType === 'fulltext') {
+        endpoint = '/publish-fulltext';
+        bodyData = { title, content, password, tags: selectedTags, files: uploadedFiles };
+      }
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': currentUser.id },
+        body: JSON.stringify(bodyData)
+      });
+      const data = await res.json();
+      if (data.error) return alert(data.error);
+      alert(modalType === 'public' ? '文章已提交审核' : '全文已发布');
+      closeModal();
+      if (modalType === 'public') loadPublicArticles();
+      else loadFulltextArticles();
+    }
+
     // ========== 其他文集 ==========
     async function loadPublicArticles() {
       const res = await fetch('/public-articles');
@@ -911,19 +1049,6 @@
       const container = document.getElementById('publicArticlesList');
       if (!articles.length) container.innerHTML = '<p style="color:#888;">暂无文章，点击下方按钮刊登。</p>';
       else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><div style="margin:10px 0;">${a.content || ''}</div>${a.files && a.files.length ? '<div><strong>附件：</strong>' + a.files.map(f => `<a href="${f.url}" target="_blank">${f.name}</a>`).join(', ') + '</div>' : ''}</div>`).join('');
-    }
-    function showAddPublicArticle() {
-      if (!currentUser) return alert('请先登录');
-      const pwd = prompt('请输入刊登密码：');
-      if (pwd !== '12321') return alert('密码错误');
-      const title = prompt('文章标题：');
-      if (!title) return;
-      const content = prompt('文章内容（支持HTML）：');
-      const tagsInput = prompt('请输入标签（用逗号分隔，如：政治,经济）：');
-      const tags = tagsInput ? tagsInput.split(',').map(s => s.trim()).filter(Boolean) : [];
-      if (tags.length === 0) return alert('至少需要一个标签');
-      // 简化的其他文集投稿不支持文件，若需要可扩展
-      fetch('/publish-public', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,content,password:pwd,tags}) }).then(r=>r.json()).then(data=>{ if(data.error) alert(data.error); else alert('投稿已提交审核'); });
     }
 
     // ========== 全文区 ==========
@@ -933,18 +1058,6 @@
       const container = document.getElementById('fulltextArticlesList');
       if (!articles.length) container.innerHTML = '<p style="color:#888;">暂无全文，管理员或站主可在此刊登。</p>';
       else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><div style="margin:10px 0;">${a.content || ''}</div><div class="action-buttons"><button class="action-btn" onclick="recommendArticle('${a.id}')">📢 推荐 ${a.recommends||0}</button></div></div>`).join('');
-    }
-    function showAddFulltext() {
-      if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'superadmin')) return alert('仅管理员或站主可刊登');
-      const pwd = prompt('请输入刊登密码：');
-      if (pwd !== '8888') return alert('密码错误');
-      const title = prompt('文章标题：');
-      if (!title) return;
-      const content = prompt('文章内容：');
-      const tagsInput = prompt('请输入标签（用逗号分隔）：');
-      const tags = tagsInput ? tagsInput.split(',').map(s => s.trim()).filter(Boolean) : [];
-      if (tags.length === 0) return alert('至少需要一个标签');
-      fetch('/publish-fulltext', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,content,tags,password:pwd}) }).then(r=>r.json()).then(data=>{ if(data.error) alert(data.error); else loadFulltextArticles(); });
     }
     async function recommendArticle(articleId) { await fetch(`/articles/${articleId}/recommend`, { method:'POST',headers:{'x-user-id':currentUser.id} }); loadFulltextArticles(); }
 
@@ -963,6 +1076,7 @@
       const title = prompt('文章标题：');
       if (!title) return;
       const content = prompt('文章内容（可包含<img>标签）：');
+      if (!content) return;
       const tagsInput = prompt('请输入标签（用逗号分隔）：');
       const tags = tagsInput ? tagsInput.split(',').map(s => s.trim()).filter(Boolean) : [];
       if (tags.length === 0) return alert('至少需要一个标签');
@@ -992,7 +1106,7 @@
       const desc = document.getElementById('videoDesc').value.trim();
       const fileInput = document.getElementById('videoFileInput');
       if (!title) return alert('标题不能为空');
-      if (!url && fileInput.files.length === 0) return alert('请提供视频链接或上传 MP4 文件');
+      if (!url && fileInput.files.length === 0) return alert('请提供视频链接或上传MP4文件');
 
       let fileUrl = null;
       if (fileInput.files.length > 0) {
@@ -1007,11 +1121,11 @@
       if(data.error) alert(data.error);
       else {
         alert('视频已提交审核');
-        document.getElementById('videoTitle').value = '';
-        document.getElementById('videoUrl').value = '';
-        document.getElementById('videoDesc').value = '';
-        fileInput.value = '';
-        document.getElementById('videoFileName').textContent = '';
+        document.getElementById('videoTitle').value='';
+        document.getElementById('videoUrl').value='';
+        document.getElementById('videoDesc').value='';
+        fileInput.value='';
+        document.getElementById('videoFileName').textContent='';
       }
     }
     async function likeVideo(videoId) {
@@ -1051,29 +1165,14 @@
       const desc = document.getElementById('submitVideoDesc').value.trim();
       const fileInput = document.getElementById('submitVideoFile');
       if (!title) return alert('标题不能为空');
-      if (!url && fileInput.files.length === 0) return alert('请提供视频链接或上传 MP4 文件');
-
+      if (!url && fileInput.files.length === 0) return alert('请提供视频链接或上传MP4文件');
       let fileUrl = null;
-      if (fileInput.files.length > 0) {
-        fileUrl = await uploadSingleFile(fileInput.files[0]);
-      }
-      const res = await fetch('/upload-video', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-user-id': currentUser.id },
-        body: JSON.stringify({ title, url, desc, fileUrl })
-      });
+      if (fileInput.files.length > 0) fileUrl = await uploadSingleFile(fileInput.files[0]);
+      const res = await fetch('/upload-video', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,url,desc,fileUrl}) });
       const data = await res.json();
       if(data.error) alert(data.error);
-      else {
-        alert('视频已提交审核');
-        document.getElementById('submitVideoTitle').value = '';
-        document.getElementById('submitVideoUrl').value = '';
-        document.getElementById('submitVideoDesc').value = '';
-        fileInput.value = '';
-        document.getElementById('submitVideoFileName').textContent = '';
-      }
+      else { alert('视频已提交审核'); document.getElementById('submitVideoTitle').value=''; document.getElementById('submitVideoUrl').value=''; document.getElementById('submitVideoDesc').value=''; fileInput.value=''; document.getElementById('submitVideoFileName').textContent=''; }
     }
-
     async function submitArticle() {
       if (!currentUser) return alert('请先登录');
       const title = document.getElementById('submitArticleTitle').value.trim();
@@ -1085,26 +1184,12 @@
       if (selectedTags.length === 0) return alert('请至少选择一个标签');
       if (!title) return alert('标题不能为空');
       if (!content && document.getElementById('submitArticleFiles').files.length === 0) return alert('正文或附件至少填写一项');
-
       const files = document.getElementById('submitArticleFiles').files;
       const uploadedFiles = files.length > 0 ? await uploadFiles(files) : [];
-
-      const res = await fetch('/publish', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-user-id': currentUser.id },
-        body: JSON.stringify({ title, content, tags: selectedTags, files: uploadedFiles })
-      });
+      const res = await fetch('/publish', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,content,tags:selectedTags,files:uploadedFiles}) });
       const data = await res.json();
       if(data.error) alert(data.error);
-      else {
-        alert('文章发布成功！');
-        document.getElementById('submitArticleTitle').value = '';
-        document.getElementById('submitArticleContent').value = '';
-        document.querySelectorAll('.submit-tag-checkbox').forEach(cb=>cb.checked=false);
-        document.getElementById('submitCustomTags').value = '';
-        document.getElementById('submitArticleFiles').value = '';
-        document.getElementById('submitArticleFileList').innerHTML = '';
-      }
+      else { alert('文章发布成功！'); document.getElementById('submitArticleTitle').value=''; document.getElementById('submitArticleContent').value=''; document.querySelectorAll('.submit-tag-checkbox').forEach(cb=>cb.checked=false); document.getElementById('submitCustomTags').value=''; document.getElementById('submitArticleFiles').value=''; document.getElementById('submitArticleFileList').innerHTML=''; }
     }
 
     // ========== 信箱 ==========
@@ -1179,7 +1264,6 @@
       socket.on('errorMsg', (msg) => alert(msg));
       socket.on('refreshFriends', () => { socket.emit('getMyFriends'); });
       socket.on('groupFilesUpdated', (groupId) => { if (currentGroupId === groupId) loadGroupFiles(groupId); });
-      // 世界聊天
       socket.on('worldMessage', (msg) => {
         const container = document.getElementById('worldMessages');
         if (container) {
@@ -1324,7 +1408,6 @@
       else { alert('上传成功'); loadGroupFiles(currentGroupId); fileInput.value=''; }
     }
 
-    // 世界消息发送
     function sendWorldMessage() {
       const input = document.getElementById('worldInput');
       const content = input.value.trim();
