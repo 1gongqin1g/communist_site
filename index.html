@@ -182,7 +182,8 @@
     .post-form input, .post-form textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; }
     .post-form button { background: #C8102E; color: white; border: none; padding: 10px 25px; border-radius: 20px; cursor: pointer; font-size: 1rem; }
     .article-item { background: #FFFDF9; border: 1px solid #EEDDCC; border-radius: 12px; padding: 15px; margin: 15px 0; text-align: left; }
-    .article-item h3 { color: #A51D2B; margin-bottom: 8px; }
+    .article-item h3 { color: #A51D2B; margin-bottom: 8px; cursor: pointer; }
+    .article-item h3:hover { text-decoration: underline; }
     .article-meta { font-size: 0.9rem; color: #888; margin-bottom: 10px; }
     .action-buttons { display: flex; gap: 15px; margin-top: 10px; flex-wrap: wrap; }
     .action-btn { background: none; border: 1px solid #C8102E; color: #C8102E; padding: 5px 12px; border-radius: 15px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
@@ -203,7 +204,6 @@
   </style>
 </head>
 <body>
-
   <!-- ========== 头部 ========== -->
   <div class="top-section">
     <div class="header">
@@ -253,6 +253,7 @@
         </div>
       </div>
     </div>
+
     <!-- 名人文章 -->
     <div id="articles" class="page">
       <div class="article-card">
@@ -344,7 +345,6 @@
             <h3>📰 个人精文报投稿</h3>
             <div class="post-form">
               <input type="text" id="submitArticleTitle" placeholder="文章标题">
-              <textarea id="submitArticleContent" rows="6" placeholder="正文内容...（支持HTML）"></textarea>
               <div class="tag-selector">
                 <strong>标签（必选）：</strong>
                 <label><input type="checkbox" value="政治" class="submit-tag-checkbox">政治</label>
@@ -356,8 +356,8 @@
                 <input type="text" class="custom-tag-input" id="submitCustomTags" placeholder="自定义，逗号分隔">
               </div>
               <div style="margin:10px 0;">
-                <strong>附件（PDF/Word/MP4）：</strong>
-                <input type="file" id="submitArticleFiles" multiple accept=".pdf,.doc,.docx,.mp4" onchange="previewFiles('submitArticleFiles','submitArticleFileList')">
+                <strong>附件（PDF/Word）：</strong>
+                <input type="file" id="submitArticleFiles" multiple accept=".pdf,.doc,.docx" onchange="previewFiles('submitArticleFiles','submitArticleFileList')">
                 <div id="submitArticleFileList" style="font-size:0.9rem; color:#666;"></div>
               </div>
               <button onclick="submitArticle()">发布文章</button>
@@ -470,7 +470,6 @@
     <div class="modal-content" style="width:450px; text-align:left;">
       <h3 id="articleSubmitTitle">刊登文章</h3>
       <input type="text" id="modalArticleTitle" placeholder="文章标题" style="width:100%; margin:8px 0;">
-      <textarea id="modalArticleContent" rows="5" placeholder="文章内容（支持HTML）" style="width:100%; margin:8px 0;"></textarea>
       <div class="tag-selector">
         <strong>标签（必选）：</strong>
         <label><input type="checkbox" value="政治" class="modal-tag-checkbox">政治</label>
@@ -495,7 +494,7 @@
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
-<script>
+  <script>
     // ========== 导师文章数据 ==========
     const mentorArticles = [
       { title:"《共产党宣言》", author:"卡尔·马克思 恩格斯", tags:["政治","社会运动"] },
@@ -881,6 +880,11 @@
       return null;
     }
 
+    // ========== 打开附件函数 ==========
+    function openFile(fileUrl) {
+      window.open(fileUrl, '_blank');
+    }
+
     // ========== 个人精文报（公开广场） ==========
     let publicFeedSort = 'latest';
     async function loadPublicFeed() {
@@ -894,17 +898,16 @@
       const tagCheckboxes = predefinedTags.map(tag => `<label><input type="checkbox" value="${tag}" class="tag-checkbox">${tag}</label>`).join('');
       const formHtml = `
         <div class="post-form">
-          <h3>发表新文章（支持HTML）</h3>
+          <h3>发表新文章（仅需标题+标签+文件）</h3>
           <input type="text" id="newTitle" placeholder="文章标题">
-          <textarea id="newContent" rows="6" placeholder="正文内容...（支持<b>加粗</b>、<h3>小标题</h3>等HTML标签）"></textarea>
           <div class="tag-selector">
             <strong>标签（必选）：</strong>
             ${tagCheckboxes}
             <input type="text" class="custom-tag-input" id="customTags" placeholder="自定义，逗号分隔">
           </div>
           <div style="margin:10px 0;">
-            <strong>附件（PDF/Word/MP4）：</strong>
-            <input type="file" id="articleFiles" multiple accept=".pdf,.doc,.docx,.mp4" onchange="previewFiles('articleFiles','articleFileList')">
+            <strong>附件（PDF/Word）：</strong>
+            <input type="file" id="articleFiles" multiple accept=".pdf,.doc,.docx" onchange="previewFiles('articleFiles','articleFileList')">
             <div id="articleFileList" style="font-size:0.9rem; color:#666;"></div>
           </div>
           <button onclick="publishArticle()">发布</button>
@@ -917,10 +920,9 @@
       else {
         container.innerHTML = formHtml + articles.map(a => `
           <div class="article-item">
-            <h3>${a.title}</h3>
+            <h3 onclick="${a.files && a.files.length ? `openFile('${a.files[0].url}')` : ''}" style="cursor:${a.files && a.files.length ? 'pointer' : 'default'}">${a.title}</h3>
             <div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div>
             <div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div>
-            <div style="margin:10px 0;">${a.content || ''}</div>
             ${a.files && a.files.length ? '<div style="margin-top:8px;"><strong>附件：</strong>' + a.files.map(f => `<a href="${f.url}" target="_blank">${f.name}</a>`).join(', ') + '</div>' : ''}
             <div class="action-buttons">
               <button class="action-btn" onclick="likeArticle('${a.id}')">👍 ${a.likes||0}</button>
@@ -934,22 +936,19 @@
     function setFeedSort(sort) { publicFeedSort = sort; loadPublicFeed(); }
     async function publishArticle() {
       const title = document.getElementById('newTitle').value.trim();
-      const content = document.getElementById('newContent').value.trim();
       const checkedBoxes = document.querySelectorAll('.tag-checkbox:checked');
       const selectedTags = Array.from(checkedBoxes).map(cb => cb.value);
       const customInput = document.getElementById('customTags').value.trim();
       if (customInput) { const customs = customInput.split(',').map(s => s.trim()).filter(Boolean); customs.forEach(t => { if (!selectedTags.includes(t)) selectedTags.push(t); }); }
       if (selectedTags.length === 0) return alert('请至少选择一个标签');
       if (!title) return alert('标题不能为空');
-      if (!content && document.getElementById('articleFiles').files.length === 0) return alert('正文或附件至少填写一项');
-
       const files = document.getElementById('articleFiles').files;
-      const uploadedFiles = files.length > 0 ? await uploadFiles(files) : [];
-
+      if (files.length === 0) return alert('请至少上传一个PDF或Word文件');
+      const uploadedFiles = await uploadFiles(files);
       const res = await fetch('/publish', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-user-id': currentUser.id },
-        body: JSON.stringify({ title, content, tags: selectedTags, files: uploadedFiles })
+        body: JSON.stringify({ title, tags: selectedTags, files: uploadedFiles })
       });
       const data = await res.json();
       if (data.error) alert(data.error);
@@ -978,6 +977,7 @@
     let modalType = '';
     function openPublicArticleForm() {
       if (!currentUser) return alert('请先登录');
+      if (currentUser.role !== 'admin' && currentUser.role !== 'superadmin') return alert('仅管理员或站主可在此刊登');
       modalType = 'public';
       document.getElementById('articleSubmitTitle').textContent = '刊登到其他文集';
       document.getElementById('modalPasswordArea').style.display = 'block';
@@ -985,7 +985,8 @@
       document.getElementById('articleSubmitModal').style.display = 'flex';
     }
     function openFulltextForm() {
-      if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'superadmin')) return alert('仅管理员或站主可刊登');
+      if (!currentUser) return alert('请先登录');
+      if (currentUser.role !== 'admin' && currentUser.role !== 'superadmin') return alert('仅管理员或站主可刊登');
       modalType = 'fulltext';
       document.getElementById('articleSubmitTitle').textContent = '刊登全文';
       document.getElementById('modalPasswordArea').style.display = 'block';
@@ -994,7 +995,6 @@
     }
     function clearModal() {
       document.getElementById('modalArticleTitle').value = '';
-      document.getElementById('modalArticleContent').value = '';
       document.querySelectorAll('.modal-tag-checkbox').forEach(cb => cb.checked = false);
       document.getElementById('modalCustomTags').value = '';
       document.getElementById('modalArticleFiles').value = '';
@@ -1007,7 +1007,6 @@
 
     async function submitModalArticle() {
       const title = document.getElementById('modalArticleTitle').value.trim();
-      const content = document.getElementById('modalArticleContent').value.trim();
       const password = document.getElementById('modalPassword').value.trim();
       const checkedBoxes = document.querySelectorAll('.modal-tag-checkbox:checked');
       const selectedTags = Array.from(checkedBoxes).map(cb => cb.value);
@@ -1015,18 +1014,17 @@
       if (customInput) { const customs = customInput.split(',').map(s => s.trim()).filter(Boolean); customs.forEach(t => { if (!selectedTags.includes(t)) selectedTags.push(t); }); }
       if (selectedTags.length === 0) return alert('请至少选择一个标签');
       if (!title) return alert('标题不能为空');
-      if (!content && document.getElementById('modalArticleFiles').files.length === 0) return alert('正文或附件至少填写一项');
-
       const files = document.getElementById('modalArticleFiles').files;
-      const uploadedFiles = files.length > 0 ? await uploadFiles(files) : [];
+      if (files.length === 0) return alert('请至少上传一个PDF或Word文件');
+      const uploadedFiles = await uploadFiles(files);
 
       let endpoint, bodyData;
       if (modalType === 'public') {
         endpoint = '/publish-public';
-        bodyData = { title, content, password, tags: selectedTags, files: uploadedFiles };
+        bodyData = { title, password, tags: selectedTags, files: uploadedFiles };
       } else if (modalType === 'fulltext') {
         endpoint = '/publish-fulltext';
-        bodyData = { title, content, password, tags: selectedTags, files: uploadedFiles };
+        bodyData = { title, password, tags: selectedTags, files: uploadedFiles };
       }
 
       const res = await fetch(endpoint, {
@@ -1048,7 +1046,14 @@
       const articles = await res.json();
       const container = document.getElementById('publicArticlesList');
       if (!articles.length) container.innerHTML = '<p style="color:#888;">暂无文章，点击下方按钮刊登。</p>';
-      else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><div style="margin:10px 0;">${a.content || ''}</div>${a.files && a.files.length ? '<div><strong>附件：</strong>' + a.files.map(f => `<a href="${f.url}" target="_blank">${f.name}</a>`).join(', ') + '</div>' : ''}</div>`).join('');
+      else container.innerHTML = articles.map(a => `
+        <div class="article-item">
+          <h3 onclick="${a.files && a.files.length ? `openFile('${a.files[0].url}')` : ''}" style="cursor:${a.files && a.files.length ? 'pointer' : 'default'}">${a.title}</h3>
+          <div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div>
+          <div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div>
+          ${a.files && a.files.length ? '<div style="margin-top:8px;"><strong>附件：</strong>' + a.files.map(f => `<a href="${f.url}" target="_blank">${f.name}</a>`).join(', ') + '</div>' : ''}
+        </div>
+      `).join('');
     }
 
     // ========== 全文区 ==========
@@ -1057,7 +1062,14 @@
       const articles = await res.json();
       const container = document.getElementById('fulltextArticlesList');
       if (!articles.length) container.innerHTML = '<p style="color:#888;">暂无全文，管理员或站主可在此刊登。</p>';
-      else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><div style="margin:10px 0;">${a.content || ''}</div><div class="action-buttons"><button class="action-btn" onclick="recommendArticle('${a.id}')">📢 推荐 ${a.recommends||0}</button></div></div>`).join('');
+      else container.innerHTML = articles.map(a => `
+        <div class="article-item">
+          <h3 onclick="${a.files && a.files.length ? `openFile('${a.files[0].url}')` : ''}" style="cursor:${a.files && a.files.length ? 'pointer' : 'default'}">${a.title}</h3>
+          <div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div>
+          <div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div>
+          <div class="action-buttons"><button class="action-btn" onclick="recommendArticle('${a.id}')">📢 推荐 ${a.recommends||0}</button></div>
+        </div>
+      `).join('');
     }
     async function recommendArticle(articleId) { await fetch(`/articles/${articleId}/recommend`, { method:'POST',headers:{'x-user-id':currentUser.id} }); loadFulltextArticles(); }
 
@@ -1107,7 +1119,6 @@
       const fileInput = document.getElementById('videoFileInput');
       if (!title) return alert('标题不能为空');
       if (!url && fileInput.files.length === 0) return alert('请提供视频链接或上传MP4文件');
-
       let fileUrl = null;
       if (fileInput.files.length > 0) {
         fileUrl = await uploadSingleFile(fileInput.files[0]);
@@ -1176,20 +1187,19 @@
     async function submitArticle() {
       if (!currentUser) return alert('请先登录');
       const title = document.getElementById('submitArticleTitle').value.trim();
-      const content = document.getElementById('submitArticleContent').value.trim();
       const checkedBoxes = document.querySelectorAll('.submit-tag-checkbox:checked');
       const selectedTags = Array.from(checkedBoxes).map(cb => cb.value);
       const customInput = document.getElementById('submitCustomTags').value.trim();
       if (customInput) { const customs = customInput.split(',').map(s => s.trim()).filter(Boolean); customs.forEach(t => { if (!selectedTags.includes(t)) selectedTags.push(t); }); }
       if (selectedTags.length === 0) return alert('请至少选择一个标签');
       if (!title) return alert('标题不能为空');
-      if (!content && document.getElementById('submitArticleFiles').files.length === 0) return alert('正文或附件至少填写一项');
       const files = document.getElementById('submitArticleFiles').files;
-      const uploadedFiles = files.length > 0 ? await uploadFiles(files) : [];
-      const res = await fetch('/publish', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,content,tags:selectedTags,files:uploadedFiles}) });
+      if (files.length === 0) return alert('请至少上传一个PDF或Word文件');
+      const uploadedFiles = await uploadFiles(files);
+      const res = await fetch('/publish', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,tags:selectedTags,files:uploadedFiles}) });
       const data = await res.json();
       if(data.error) alert(data.error);
-      else { alert('文章发布成功！'); document.getElementById('submitArticleTitle').value=''; document.getElementById('submitArticleContent').value=''; document.querySelectorAll('.submit-tag-checkbox').forEach(cb=>cb.checked=false); document.getElementById('submitCustomTags').value=''; document.getElementById('submitArticleFiles').value=''; document.getElementById('submitArticleFileList').innerHTML=''; }
+      else { alert('文章发布成功！'); document.getElementById('submitArticleTitle').value=''; document.querySelectorAll('.submit-tag-checkbox').forEach(cb=>cb.checked=false); document.getElementById('submitCustomTags').value=''; document.getElementById('submitArticleFiles').value=''; document.getElementById('submitArticleFileList').innerHTML=''; }
     }
 
     // ========== 信箱 ==========

@@ -11,7 +11,7 @@ app.use(cors());
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// ========== 持久化目录 ==========
+// ========== 数据与文件目录（持久化） ==========
 const DATA_DIR = process.env.DATA_DIR || __dirname;
 const DATA_FILE = path.join(DATA_DIR, 'data.json');
 const uploadDir = path.join(DATA_DIR, 'uploads');
@@ -26,7 +26,10 @@ const storage = multer.diskStorage({
     cb(null, uniqueSuffix + '-' + Buffer.from(file.originalname, 'latin1').toString('utf8'));
   }
 });
-const upload = multer({ storage, limits: { fileSize: 50 * 1024 * 1024 } });
+const upload = multer({
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 }
+});
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(__dirname));
@@ -38,12 +41,22 @@ app.get('/health', (req, res) => res.status(200).send('OK'));
 // ========== 首页 ==========
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// ========== 数据初始化 ==========
+// ========== 初始化数据 ==========
 let data = {
-  users: {}, friends: {}, groups: [], messages: {},
-  articles: [], publicArticles: [], fulltextArticles: [], intcomArticles: [],
-  videos: [], friendRequests: [], worldMessages: [],
-  pendingArticles: [], pendingVideos: [], reviewApplications: []
+  users: {},
+  friends: {},
+  groups: [],
+  messages: {},
+  articles: [],           // 个人精文报（公开）
+  publicArticles: [],     // 其他文集（需审核）
+  fulltextArticles: [],   // 全文区
+  intcomArticles: [],     // 国际共运
+  videos: [],            // 视频区
+  friendRequests: [],    // 好友申请
+  worldMessages: [],     // 世界聊天记录
+  pendingArticles: [],   // 待审核文章
+  pendingVideos: [],     // 待审核视频
+  reviewApplications: [] // 审核员申请
 };
 if (fs.existsSync(DATA_FILE)) {
   data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
@@ -186,7 +199,7 @@ app.post('/review-application/:id', (req, res) => {
   res.json({ success: true });
 });
 
-// ========== 个人精文报（公开） ==========
+// ========== 个人精文报（公开，仅标题+标签+文件） ==========
 app.get('/public-feed', (req, res) => {
   const sort = req.query.sort || 'latest';
   let arts = [...data.articles];
@@ -198,13 +211,15 @@ app.post('/publish', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
   if (!user) return res.json({ error: '未登录' });
-  const { title, content, tags, files } = req.body;
+  const { title, tags, files } = req.body;
   let tagArr = tags;
   if (typeof tags === 'string') tagArr = tags.split(',').map(t => t.trim()).filter(Boolean);
   if (!tagArr || tagArr.length === 0) return res.json({ error: '请至少选择一个标签' });
+  if (!title) return res.json({ error: '标题不能为空' });
+  if (!files || files.length === 0) return res.json({ error: '请至少上传一个PDF或Word文件' });
   const article = {
-    id: generateUniqueId(), authorId: userId, author: user.nickname, title, content, tags: tagArr,
-    files: files || [], likes: 0, favorites: 0, coins: 0, recommends: 0,
+    id: generateUniqueId(), authorId: userId, author: user.nickname, title, content: '', tags: tagArr,
+    files: files, likes: 0, favorites: 0, coins: 0, recommends: 0,
     likedBy: [], favoritedBy: [], coinedBy: [], timestamp: Date.now()
   };
   data.articles.push(article);
@@ -248,40 +263,45 @@ app.post('/articles/:id/coin', (req, res) => {
   saveData(); res.json({ success: true });
 });
 
-// ========== 其他文集（需审核） ==========
+// ========== 其他文集（需审核，仅管理员/站主可发，标题+标签+文件） ==========
 app.get('/public-articles', (req, res) => res.json(data.publicArticles || []));
 app.post('/publish-public', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
   if (!user) return res.json({ error: '未登录' });
-  const { title, content, password, tags, files } = req.body;
+  if (user.role !== 'admin' && user.role !== 'superadmin') return res.json({ error: '仅管理员或站主可在此刊登' });
+  const { title, password, tags, files } = req.body;
   if (password !== '12321') return res.json({ error: '密码错误' });
   let tagArr = tags;
   if (typeof tags === 'string') tagArr = tags.split(',').map(t => t.trim()).filter(Boolean);
   if (!tagArr || tagArr.length === 0) return res.json({ error: '请至少选择一个标签' });
+  if (!title) return res.json({ error: '标题不能为空' });
+  if (!files || files.length === 0) return res.json({ error: '请至少上传一个PDF或Word文件' });
   const article = {
-    id: generateUniqueId(), author: user.nickname, authorId: userId, title, content, tags: tagArr,
-    files: files || [], timestamp: Date.now(), likedBy: [], favoritedBy: [], coinedBy: []
+    id: generateUniqueId(), author: user.nickname, authorId: userId, title, content: '', tags: tagArr,
+    files: files, timestamp: Date.now(), likedBy: [], favoritedBy: [], coinedBy: []
   };
   data.pendingArticles.push(article);
   saveData();
   res.json({ success: true, pending: true });
 });
 
-// ========== 全文区 ==========
+// ========== 全文区（仅管理员/站主，标题+标签+文件） ==========
 app.get('/fulltext-articles', (req, res) => res.json(data.fulltextArticles || []));
 app.post('/publish-fulltext', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
-  if (!user || (user.role !== 'admin' && user.role !== 'superadmin')) return res.json({ error: '权限不足' });
-  const { title, content, tags, password, files } = req.body;
+  if (!user || (user.role !== 'admin' && user.role !== 'superadmin')) return res.json({ error: '仅管理员或站主可在此刊登' });
+  const { title, tags, password, files } = req.body;
   if (password !== '8888') return res.json({ error: '密码错误' });
   let tagArr = tags;
   if (typeof tags === 'string') tagArr = tags.split(',').map(t => t.trim()).filter(Boolean);
   if (!tagArr || tagArr.length === 0) return res.json({ error: '请至少选择一个标签' });
+  if (!title) return res.json({ error: '标题不能为空' });
+  if (!files || files.length === 0) return res.json({ error: '请至少上传一个PDF或Word文件' });
   data.fulltextArticles.push({
-    id: generateUniqueId(), author: user.nickname, title, content, tags: tagArr,
-    files: files || [], recommends: 0, timestamp: Date.now()
+    id: generateUniqueId(), author: user.nickname, title, content: '', tags: tagArr,
+    files: files, recommends: 0, timestamp: Date.now()
   });
   saveData();
   res.json({ success: true });
@@ -349,7 +369,7 @@ app.post('/videos/:id/favorite', (req, res) => {
   saveData(); res.json({ success: true });
 });
 
-// 审核
+// 审核相关
 app.get('/pending-list', (req, res) => {
   const user = getUserById(req.headers['x-user-id']);
   if (!user || user.role !== 'reviewer') return res.json({ error: '权限不足' });
@@ -390,7 +410,10 @@ app.post('/publish-intcom', (req, res) => {
   let tagArr = tags;
   if (typeof tags === 'string') tagArr = tags.split(',').map(t => t.trim()).filter(Boolean);
   if (!tagArr || tagArr.length === 0) return res.json({ error: '请至少选择一个标签' });
-  data.intcomArticles.push({ id: generateUniqueId(), author: user.nickname, title, content, tags: tagArr, recommends: 0, timestamp: Date.now() });
+  data.intcomArticles.push({
+    id: generateUniqueId(), author: user.nickname, title, content, tags: tagArr,
+    recommends: 0, timestamp: Date.now()
+  });
   saveData();
   res.json({ success: true });
 });
@@ -398,11 +421,10 @@ app.post('/intcom-articles/:id/recommend', (req, res) => {
   const article = data.intcomArticles.find(a => a.id === req.params.id);
   if (!article) return res.json({ error: '文章不存在' });
   article.recommends = (article.recommends || 0) + 1;
-  saveData();
-  res.json({ success: true });
+  saveData(); res.json({ success: true });
 });
 
-// ========== 个人主页 ==========
+// ========== 个人主页/权限 ==========
 app.post('/updateLocation', (req, res) => {
   const { id, location } = req.body;
   const user = getUserById(id);
@@ -454,7 +476,7 @@ app.post('/admin/demote', (req, res) => {
   res.json({ success: true });
 });
 
-// ========== 群组 ==========
+// ========== 群组管理 ==========
 app.get('/group/:id/members', (req, res) => {
   const group = data.groups.find(g => g.id === req.params.id);
   if (!group || !group.members.includes(req.headers['x-user-id'])) return res.json({ error: '无权限' });
@@ -649,6 +671,7 @@ function sendFriendList(socket, nickname) {
   const friendNames = data.friends[nickname] || [];
   socket.emit('updateFriends', friendNames.map(name => ({ id: data.users[name]?.id || name, name })));
 }
+
 function findSocketByNickname(nickname) {
   for (let [id, s] of io.of('/').sockets) { if (s.currentNickname === nickname) return s; }
   return null;
@@ -657,6 +680,7 @@ function findSocketByUserId(userId) {
   for (let [id, s] of io.of('/').sockets) { if (s.currentId === userId) return s; }
   return null;
 }
+
 io.use((socket, next) => {
   socket.currentNickname = '';
   socket.currentId = '';
