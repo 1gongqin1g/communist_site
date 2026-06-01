@@ -11,7 +11,7 @@ app.use(cors());
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// ========== 数据与文件目录（持久化） ==========
+// ========== 持久化目录 ==========
 const DATA_DIR = process.env.DATA_DIR || __dirname;
 const DATA_FILE = path.join(DATA_DIR, 'data.json');
 const uploadDir = path.join(DATA_DIR, 'uploads');
@@ -26,47 +26,36 @@ const storage = multer.diskStorage({
     cb(null, uniqueSuffix + '-' + Buffer.from(file.originalname, 'latin1').toString('utf8'));
   }
 });
-const upload = multer({
-  storage,
-  limits: { fileSize: 50 * 1024 * 1024 }
-});
+const upload = multer({ storage, limits: { fileSize: 50 * 1024 * 1024 } });
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(__dirname));
 app.use('/uploads', express.static(uploadDir));
 
-// ========== 健康检查 ==========
 app.get('/health', (req, res) => res.status(200).send('OK'));
-
-// ========== 首页 ==========
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// ========== 初始化数据 ==========
+// ========== 数据初始化 ==========
 let data = {
   users: {},
   friends: {},
   groups: [],
   messages: {},
-  articles: [],           // 个人精文报（公开）
-  publicArticles: [],     // 其他文集（需审核）
-  fulltextArticles: [],   // 全文区
-  intcomArticles: [],     // 国际共运
-  videos: [],            // 视频区
-  friendRequests: [],    // 好友申请
-  worldMessages: [],     // 世界聊天记录
-  pendingArticles: [],   // 待审核文章
-  pendingVideos: [],     // 待审核视频
-  reviewApplications: [] // 审核员申请
+  articles: [],
+  publicArticles: [],
+  fulltextArticles: [],
+  intcomArticles: [],
+  videos: [],
+  friendRequests: [],
+  worldMessages: []
 };
 if (fs.existsSync(DATA_FILE)) {
   data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+  // 补全新字段
   if (!data.intcomArticles) data.intcomArticles = [];
   if (!data.videos) data.videos = [];
   if (!data.friendRequests) data.friendRequests = [];
   if (!data.worldMessages) data.worldMessages = [];
-  if (!data.pendingArticles) data.pendingArticles = [];
-  if (!data.pendingVideos) data.pendingVideos = [];
-  if (!data.reviewApplications) data.reviewApplications = [];
   Object.values(data.users).forEach(u => {
     if (!u.notifications) u.notifications = [];
     if (u.coins === undefined) u.coins = 0;
@@ -136,8 +125,6 @@ app.post('/delete-account', (req, res) => {
   data.fulltextArticles = data.fulltextArticles.filter(a => a.authorId !== userId);
   data.intcomArticles = data.intcomArticles.filter(a => a.authorId !== userId);
   data.videos = data.videos.filter(v => v.authorId !== userId);
-  data.pendingArticles = data.pendingArticles.filter(a => a.authorId !== userId);
-  data.pendingVideos = data.pendingVideos.filter(v => v.authorId !== userId);
   delete data.users[nickname];
   saveData();
   res.json({ success: true });
@@ -171,35 +158,42 @@ app.post('/friend/remove', (req, res) => {
   res.json({ success: true });
 });
 
-// ========== 审核员申请 ==========
-app.post('/apply-reviewer', (req, res) => {
+// ========== 权限提升（管理员/站主） ==========
+app.post('/promote', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
   if (!user) return res.json({ error: '未登录' });
-  if (user.role !== 'user') return res.json({ error: '权限不足' });
-  if (data.reviewApplications.find(a => a.userId === userId && a.status === 'pending')) return res.json({ error: '已有待处理的申请' });
-  data.reviewApplications.push({ id: generateUniqueId(), userId, nickname: user.nickname, status: 'pending', timestamp: Date.now() });
-  saveData();
-  res.json({ success: true });
+  const { password } = req.body;
+  if (password === '9999') { user.role = 'admin'; saveData(); return res.json({ role: 'admin' }); }
+  else if (password === '0000') { user.role = 'superadmin'; saveData(); return res.json({ role: 'superadmin' }); }
+  else return res.json({ error: '密码错误' });
 });
-app.get('/review-applications', (req, res) => {
+
+// 管理员/站主可查看所有用户
+app.get('/users/list', (req, res) => {
   const user = getUserById(req.headers['x-user-id']);
   if (!user || (user.role !== 'admin' && user.role !== 'superadmin')) return res.json({ error: '权限不足' });
-  res.json({ applications: data.reviewApplications.filter(a => a.status === 'pending') });
+  res.json({ users: Object.values(data.users).map(u => ({ id: u.id, nickname: u.nickname })) });
 });
-app.post('/review-application/:id', (req, res) => {
-  const admin = getUserById(req.headers['x-user-id']);
-  if (!admin || (admin.role !== 'admin' && admin.role !== 'superadmin')) return res.json({ error: '权限不足' });
-  const app = data.reviewApplications.find(a => a.id === req.params.id);
-  if (!app) return res.json({ error: '申请不存在' });
-  const { action } = req.body;
-  if (action === 'accept') { const u = getUserById(app.userId); if (u) u.role = 'reviewer'; app.status = 'accepted'; }
-  else app.status = 'rejected';
+
+// 站主可查看管理员列表并撤销
+app.get('/admin/list', (req, res) => {
+  const user = getUserById(req.headers['x-user-id']);
+  if (!user || user.role !== 'superadmin') return res.json({ error: '权限不足' });
+  const admins = Object.values(data.users).filter(u => u.role === 'admin').map(u => ({ id: u.id, nickname: u.nickname }));
+  res.json({ admins });
+});
+app.post('/admin/demote', (req, res) => {
+  const user = getUserById(req.headers['x-user-id']);
+  if (!user || user.role !== 'superadmin') return res.json({ error: '权限不足' });
+  const target = getUserById(req.body.targetUserId);
+  if (!target) return res.json({ error: '用户不存在' });
+  target.role = 'user';
   saveData();
   res.json({ success: true });
 });
 
-// ========== 个人精文报（公开，仅标题+标签+文件） ==========
+// ========== 个人精文报（公开，无需审核） ==========
 app.get('/public-feed', (req, res) => {
   const sort = req.query.sort || 'latest';
   let arts = [...data.articles];
@@ -207,6 +201,7 @@ app.get('/public-feed', (req, res) => {
   else arts.sort((a, b) => b.timestamp - a.timestamp);
   res.json(arts);
 });
+
 app.post('/publish', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
@@ -227,7 +222,7 @@ app.post('/publish', (req, res) => {
   res.json({ success: true });
 });
 
-// 点赞/收藏/投币限制
+// 点赞/收藏/投币 + 通知
 app.post('/articles/:id/like', (req, res) => {
   const userId = req.headers['x-user-id'];
   const article = data.articles.find(a => a.id === req.params.id) || data.fulltextArticles.find(a => a.id === req.params.id);
@@ -236,6 +231,12 @@ app.post('/articles/:id/like', (req, res) => {
   if (article.likedBy.includes(userId)) return res.json({ error: '已经点过赞了' });
   article.likes = (article.likes || 0) + 1;
   article.likedBy.push(userId);
+  // 通知作者
+  const author = getUserById(article.authorId);
+  if (author && author.id !== userId) {
+    const liker = getUserById(userId);
+    author.notifications.push({ message: `${liker?.nickname || '某同志'} 赞了你的文章《${article.title}》`, timestamp: Date.now() });
+  }
   saveData(); res.json({ success: true });
 });
 app.post('/articles/:id/favorite', (req, res) => {
@@ -246,6 +247,11 @@ app.post('/articles/:id/favorite', (req, res) => {
   if (article.favoritedBy.includes(userId)) return res.json({ error: '已经收藏过了' });
   article.favorites = (article.favorites || 0) + 1;
   article.favoritedBy.push(userId);
+  const author = getUserById(article.authorId);
+  if (author && author.id !== userId) {
+    const favoriter = getUserById(userId);
+    author.notifications.push({ message: `${favoriter?.nickname || '某同志'} 收藏了你的文章《${article.title}》`, timestamp: Date.now() });
+  }
   saveData(); res.json({ success: true });
 });
 app.post('/articles/:id/coin', (req, res) => {
@@ -260,18 +266,21 @@ app.post('/articles/:id/coin', (req, res) => {
   user.coins -= 1;
   article.coins = (article.coins || 0) + 1;
   article.coinedBy.push(userId);
+  const author = getUserById(article.authorId);
+  if (author && author.id !== userId) {
+    author.notifications.push({ message: `${user.nickname} 给你投了一枚硬币：${article.title}`, timestamp: Date.now() });
+  }
   saveData(); res.json({ success: true });
 });
 
-// ========== 其他文集（需审核，仅管理员/站主可发，标题+标签+文件） ==========
+// ========== 其他文集（仅管理员/站主可发布，无密码） ==========
 app.get('/public-articles', (req, res) => res.json(data.publicArticles || []));
 app.post('/publish-public', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
   if (!user) return res.json({ error: '未登录' });
   if (user.role !== 'admin' && user.role !== 'superadmin') return res.json({ error: '仅管理员或站主可在此刊登' });
-  const { title, password, tags, files } = req.body;
-  if (password !== '12321') return res.json({ error: '密码错误' });
+  const { title, tags, files } = req.body;  // 无密码
   let tagArr = tags;
   if (typeof tags === 'string') tagArr = tags.split(',').map(t => t.trim()).filter(Boolean);
   if (!tagArr || tagArr.length === 0) return res.json({ error: '请至少选择一个标签' });
@@ -281,19 +290,18 @@ app.post('/publish-public', (req, res) => {
     id: generateUniqueId(), author: user.nickname, authorId: userId, title, content: '', tags: tagArr,
     files: files, timestamp: Date.now(), likedBy: [], favoritedBy: [], coinedBy: []
   };
-  data.pendingArticles.push(article);
+  data.publicArticles.push(article);
   saveData();
-  res.json({ success: true, pending: true });
+  res.json({ success: true });
 });
 
-// ========== 全文区（仅管理员/站主，标题+标签+文件） ==========
+// ========== 全文区（仅管理员/站主，无密码） ==========
 app.get('/fulltext-articles', (req, res) => res.json(data.fulltextArticles || []));
 app.post('/publish-fulltext', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
   if (!user || (user.role !== 'admin' && user.role !== 'superadmin')) return res.json({ error: '仅管理员或站主可在此刊登' });
-  const { title, tags, password, files } = req.body;
-  if (password !== '8888') return res.json({ error: '密码错误' });
+  const { title, tags, files } = req.body;
   let tagArr = tags;
   if (typeof tags === 'string') tagArr = tags.split(',').map(t => t.trim()).filter(Boolean);
   if (!tagArr || tagArr.length === 0) return res.json({ error: '请至少选择一个标签' });
@@ -320,9 +328,9 @@ app.post('/upload-video', (req, res) => {
     url: url || fileUrl, isUploadedFile: !!fileUrl, desc: desc || '',
     likes: 0, favorites: 0, comments: [], likedBy: [], favoritedBy: [], timestamp: Date.now()
   };
-  data.pendingVideos.push(video);
+  data.videos.push(video);   // 直接发布，无需审核
   saveData();
-  res.json({ success: true, pending: true });
+  res.json({ success: true });
 });
 app.get('/videos', (req, res) => {
   let vids = data.videos || [];
@@ -345,6 +353,11 @@ app.post('/videos/:id/comment', (req, res) => {
   const { text } = req.body;
   if (!text) return res.json({ error: '评论不能为空' });
   video.comments.push({ author: user.nickname, text, timestamp: Date.now() });
+  // 通知视频作者
+  const author = getUserById(video.authorId);
+  if (author && author.id !== userId) {
+    author.notifications.push({ message: `${user.nickname} 评论了你的视频《${video.title}》`, timestamp: Date.now() });
+  }
   saveData();
   res.json({ success: true });
 });
@@ -356,6 +369,11 @@ app.post('/videos/:id/like', (req, res) => {
   if (video.likedBy.includes(userId)) return res.json({ error: '已经点过赞了' });
   video.likes = (video.likes || 0) + 1;
   video.likedBy.push(userId);
+  const author = getUserById(video.authorId);
+  if (author && author.id !== userId) {
+    const liker = getUserById(userId);
+    author.notifications.push({ message: `${liker?.nickname || '某同志'} 赞了你的视频《${video.title}》`, timestamp: Date.now() });
+  }
   saveData(); res.json({ success: true });
 });
 app.post('/videos/:id/favorite', (req, res) => {
@@ -366,46 +384,21 @@ app.post('/videos/:id/favorite', (req, res) => {
   if (video.favoritedBy.includes(userId)) return res.json({ error: '已经收藏过了' });
   video.favorites = (video.favorites || 0) + 1;
   video.favoritedBy.push(userId);
-  saveData(); res.json({ success: true });
-});
-
-// 审核相关
-app.get('/pending-list', (req, res) => {
-  const user = getUserById(req.headers['x-user-id']);
-  if (!user || user.role !== 'reviewer') return res.json({ error: '权限不足' });
-  res.json({ articles: data.pendingArticles, videos: data.pendingVideos });
-});
-app.post('/approve/:type/:id', (req, res) => {
-  const user = getUserById(req.headers['x-user-id']);
-  if (!user || user.role !== 'reviewer') return res.json({ error: '权限不足' });
-  const { type, id } = req.params;
-  if (type === 'article') {
-    const idx = data.pendingArticles.findIndex(a => a.id === id);
-    if (idx === -1) return res.json({ error: '文章不存在' });
-    data.publicArticles.push(data.pendingArticles.splice(idx, 1)[0]);
-  } else if (type === 'video') {
-    const idx = data.pendingVideos.findIndex(v => v.id === id);
-    if (idx === -1) return res.json({ error: '视频不存在' });
-    data.videos.push(data.pendingVideos.splice(idx, 1)[0]);
+  const author = getUserById(video.authorId);
+  if (author && author.id !== userId) {
+    const favoriter = getUserById(userId);
+    author.notifications.push({ message: `${favoriter?.nickname || '某同志'} 收藏了你的视频《${video.title}》`, timestamp: Date.now() });
   }
   saveData(); res.json({ success: true });
 });
-app.post('/reject/:type/:id', (req, res) => {
-  const user = getUserById(req.headers['x-user-id']);
-  if (!user || user.role !== 'reviewer') return res.json({ error: '权限不足' });
-  const { type, id } = req.params;
-  if (type === 'article') data.pendingArticles = data.pendingArticles.filter(a => a.id !== id);
-  else data.pendingVideos = data.pendingVideos.filter(v => v.id !== id);
-  saveData(); res.json({ success: true });
-});
 
-// ========== 国际共运 ==========
+// ========== 国际共运（管理员/站主，密码保留？要求未提，保留原样，但允许无密码？不要求去掉，所以保留密码） ==========
 app.get('/intcom-articles', (req, res) => res.json(data.intcomArticles || []));
 app.post('/publish-intcom', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
   if (!user || (user.role !== 'admin' && user.role !== 'superadmin')) return res.json({ error: '权限不足' });
-  const { title, content, tags, password } = req.body;
+  const { title, content, tags, password } = req.body;  // 仍要求密码
   if (password !== '世界人民大团结') return res.json({ error: '密码错误' });
   let tagArr = tags;
   if (typeof tags === 'string') tagArr = tags.split(',').map(t => t.trim()).filter(Boolean);
@@ -421,10 +414,15 @@ app.post('/intcom-articles/:id/recommend', (req, res) => {
   const article = data.intcomArticles.find(a => a.id === req.params.id);
   if (!article) return res.json({ error: '文章不存在' });
   article.recommends = (article.recommends || 0) + 1;
+  const author = getUserById(article.authorId);
+  if (author && author.id !== req.headers['x-user-id']) {
+    const recommender = getUserById(req.headers['x-user-id']);
+    author.notifications.push({ message: `${recommender?.nickname || '某同志'} 推荐了你的文章《${article.title}》`, timestamp: Date.now() });
+  }
   saveData(); res.json({ success: true });
 });
 
-// ========== 个人主页/权限 ==========
+// ========== 个人主页/位置/头像 ==========
 app.post('/updateLocation', (req, res) => {
   const { id, location } = req.body;
   const user = getUserById(id);
@@ -445,35 +443,6 @@ app.get('/user/:id', (req, res) => {
   const user = Object.values(data.users).find(u => u.id === req.params.id);
   if (!user) return res.json({ error: '用户不存在' });
   res.json({ id: user.id, nickname: user.nickname, location: user.location, image: user.image || null });
-});
-app.post('/promote', (req, res) => {
-  const userId = req.headers['x-user-id'];
-  const user = getUserById(userId);
-  if (!user) return res.json({ error: '未登录' });
-  const { password } = req.body;
-  if (password === '9999') { user.role = 'admin'; saveData(); return res.json({ role: 'admin' }); }
-  else if (password === '0000') { user.role = 'superadmin'; saveData(); return res.json({ role: 'superadmin' }); }
-  else return res.json({ error: '密码错误' });
-});
-app.get('/users/list', (req, res) => {
-  const user = getUserById(req.headers['x-user-id']);
-  if (!user || (user.role !== 'admin' && user.role !== 'superadmin')) return res.json({ error: '权限不足' });
-  res.json({ users: Object.values(data.users).map(u => ({ id: u.id, nickname: u.nickname })) });
-});
-app.get('/admin/list', (req, res) => {
-  const user = getUserById(req.headers['x-user-id']);
-  if (!user || user.role !== 'superadmin') return res.json({ error: '权限不足' });
-  const admins = Object.values(data.users).filter(u => u.role === 'admin').map(u => ({ id: u.id, nickname: u.nickname }));
-  res.json({ admins });
-});
-app.post('/admin/demote', (req, res) => {
-  const user = getUserById(req.headers['x-user-id']);
-  if (!user || user.role !== 'superadmin') return res.json({ error: '权限不足' });
-  const target = getUserById(req.body.targetUserId);
-  if (!target) return res.json({ error: '用户不存在' });
-  target.role = 'user';
-  saveData();
-  res.json({ success: true });
 });
 
 // ========== 群组管理 ==========
@@ -538,7 +507,7 @@ app.post('/group/upload', upload.single('file'), (req, res) => {
   res.json({ success: true });
 });
 
-// ========== 信箱 ==========
+// ========== 信箱（包含通知、好友请求、好友列表） ==========
 app.get('/mailbox', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
@@ -548,7 +517,7 @@ app.get('/mailbox', (req, res) => {
   }));
   const friendNames = data.friends[user.nickname] || [];
   const friends = friendNames.map(name => ({ id: data.users[name]?.id || name, name }));
-  const notifications = (user.notifications || []).slice(-20).reverse();
+  const notifications = (user.notifications || []).slice(-30).reverse();  // 最近30条
   res.json({ requests, friends, notifications });
 });
 app.post('/friend/accept', (req, res) => {
@@ -578,7 +547,7 @@ app.post('/friend/reject', (req, res) => {
   res.json({ success: true });
 });
 
-// ========== Socket.IO ==========
+// ========== Socket.IO（世界聊天+好友+群组） ==========
 io.on('connection', (socket) => {
   let currentNickname = '';
   let currentId = '';
