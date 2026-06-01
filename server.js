@@ -11,50 +11,71 @@ app.use(cors());
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// ========== 数据与文件目录（支持 Railway Volume） ==========
-const DATA_DIR = process.env.DATA_DIR || __dirname;
+// ========== 持久化数据目录（适配 Railway Volume） ==========
+const DATA_DIR = process.env.DATA_DIR || __dirname;   // Railway 环境变量需设为 /data
 const DATA_FILE = path.join(DATA_DIR, 'data.json');
 const uploadDir = path.join(DATA_DIR, 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
+// 文件上传配置（支持 PDF、Word、MP4）
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+  filename: (req, file, cb) => {
+    // 生成唯一文件名，避免中文乱码
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + Buffer.from(file.originalname, 'latin1').toString('utf8'));
+  }
 });
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 },  // 50MB
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'video/mp4'
+    ];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('仅支持 PDF、Word 和 MP4 文件'));
+    }
+  }
+});
 
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(__dirname));
-app.use('/uploads', express.static(uploadDir));
+app.use(express.static(__dirname));           // 托管 index.html 等静态文件
+app.use('/uploads', express.static(uploadDir)); // 提供上传文件访问
 
-// ========== 健康检查（必须保留） ==========
+// ========== 健康检查（Railway 必须） ==========
 app.get('/health', (req, res) => res.status(200).send('OK'));
 
-// ========== 显式首页 ==========
+// ========== 首页路由 ==========
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// ========== 初始化数据 ==========
+// ========== 数据初始化 ==========
 let data = {
   users: {},
   friends: {},
   groups: [],
   messages: {},
-  articles: [],
-  publicArticles: [],
-  fulltextArticles: [],
-  intcomArticles: [],
-  videos: [],
-  friendRequests: [],
-  worldMessages: [],
-  pendingArticles: [],
-  pendingVideos: [],
-  reviewApplications: []
+  articles: [],           // 个人精文报（公开）
+  publicArticles: [],     // 其他文集（审核后）
+  fulltextArticles: [],   // 全文区
+  intcomArticles: [],     // 国际共运
+  videos: [],            // 视频区
+  friendRequests: [],    // 好友申请
+  worldMessages: [],     // 世界聊天记录
+  pendingArticles: [],   // 待审核文章
+  pendingVideos: [],     // 待审核视频
+  reviewApplications: [] // 审核员申请
 };
 if (fs.existsSync(DATA_FILE)) {
   data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
-  // 补全新字段
+  // 补全可能缺失的字段
   if (!data.intcomArticles) data.intcomArticles = [];
   if (!data.videos) data.videos = [];
   if (!data.friendRequests) data.friendRequests = [];
@@ -85,6 +106,13 @@ function getUserById(userId) {
   return Object.values(data.users).find(u => u.id === userId);
 }
 
+// ========== 通用文件上传接口（供前端调用） ==========
+app.post('/upload-file', upload.single('file'), (req, res) => {
+  if (!req.file) return res.json({ error: '未选择文件' });
+  const fileUrl = '/uploads/' + req.file.filename;
+  res.json({ success: true, url: fileUrl, originalName: req.file.originalname });
+});
+
 // ========== 用户注册/登录 ==========
 app.post('/register', (req, res) => {
   const { nickname, password } = req.body;
@@ -114,6 +142,8 @@ app.post('/delete-account', (req, res) => {
   const user = getUserById(userId);
   if (!user) return res.json({ error: '用户不存在' });
   const nickname = user.nickname;
+
+  // 清理好友关系
   if (data.friends[nickname]) {
     data.friends[nickname].forEach(friendName => {
       if (data.friends[friendName]) {
@@ -122,7 +152,11 @@ app.post('/delete-account', (req, res) => {
     });
     delete data.friends[nickname];
   }
+
+  // 清理好友申请
   data.friendRequests = data.friendRequests.filter(r => r.fromUserId !== userId && r.toUserId !== userId);
+
+  // 清理群组
   data.groups.forEach(g => {
     if (g.members.includes(userId)) {
       g.members = g.members.filter(m => m !== userId);
@@ -130,12 +164,15 @@ app.post('/delete-account', (req, res) => {
     }
   });
   data.groups = data.groups.filter(g => g.members.length > 0);
+
+  // 清理文章
   data.articles = data.articles.filter(a => a.authorId !== userId);
   data.fulltextArticles = data.fulltextArticles.filter(a => a.authorId !== userId);
   data.intcomArticles = data.intcomArticles.filter(a => a.authorId !== userId);
   data.videos = data.videos.filter(v => v.authorId !== userId);
   data.pendingArticles = data.pendingArticles.filter(a => a.authorId !== userId);
   data.pendingVideos = data.pendingVideos.filter(v => v.authorId !== userId);
+
   delete data.users[nickname];
   saveData();
   res.json({ success: true });
@@ -156,7 +193,7 @@ app.post('/daily-claim', (req, res) => {
   res.json({ coins: user.coins });
 });
 
-// ========== 好友管理（添加/删除/申请） ==========
+// ========== 好友管理 ==========
 app.post('/friend/remove', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
@@ -217,7 +254,7 @@ app.post('/review-application/:id', (req, res) => {
   res.json({ success: true });
 });
 
-// ========== 个人精文报（公开，所有人可见） ==========
+// ========== 个人精文报（公开广场） ==========
 app.get('/public-feed', (req, res) => {
   const sort = req.query.sort || 'latest';
   let articles = [...data.articles];
@@ -233,15 +270,20 @@ app.post('/publish', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
   if (!user) return res.json({ error: '未登录' });
-  const { title, content, tags } = req.body;
-  if (!tags || tags.length === 0) return res.json({ error: '请至少选择一个标签' });
+  const { title, content, tags, files } = req.body;   // files 为前端上传后返回的 URL 数组
+  let tagArray = tags;
+  if (typeof tags === 'string') {
+    tagArray = tags.split(',').map(t => t.trim()).filter(Boolean);
+  }
+  if (!tagArray || tagArray.length === 0) return res.json({ error: '请至少选择一个标签' });
   const article = {
     id: generateUniqueId(),
     authorId: userId,
     author: user.nickname,
     title,
     content,
-    tags,
+    tags: tagArray,
+    files: files || [],
     likes: 0,
     favorites: 0,
     coins: 0,
@@ -300,18 +342,23 @@ app.post('/publish-public', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
   if (!user) return res.json({ error: '未登录' });
-  const { title, content, password, tags } = req.body;
+  const { title, content, password, tags, files } = req.body;
   if (password !== '12321') return res.json({ error: '密码错误' });
-  if (!tags || tags.length === 0) return res.json({ error: '请至少选择一个标签' });
+  let tagArray = tags;
+  if (typeof tags === 'string') tagArray = tags.split(',').map(t => t.trim()).filter(Boolean);
+  if (!tagArray || tagArray.length === 0) return res.json({ error: '请至少选择一个标签' });
   const article = {
     id: generateUniqueId(),
     author: user.nickname,
     authorId: userId,
     title,
     content,
-    tags,
+    tags: tagArray,
+    files: files || [],
     timestamp: Date.now(),
-    likedBy: [], favoritedBy: [], coinedBy: []
+    likedBy: [],
+    favoritedBy: [],
+    coinedBy: []
   };
   data.pendingArticles.push(article);
   saveData();
@@ -320,19 +367,21 @@ app.post('/publish-public', (req, res) => {
 
 app.get('/public-articles', (req, res) => res.json(data.publicArticles || []));
 
-// ========== 视频区（需审核） ==========
+// ========== 视频区（需审核，支持 MP4 上传） ==========
 app.post('/upload-video', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
   if (!user) return res.json({ error: '未登录' });
-  const { title, url, desc } = req.body;
-  if (!title || !url) return res.json({ error: '标题和链接不能为空' });
+  const { title, url, desc, fileUrl } = req.body;   // fileUrl 是 /upload-file 返回的链接
+  if (!title) return res.json({ error: '标题不能为空' });
+  if (!url && !fileUrl) return res.json({ error: '请提供视频链接或上传视频文件' });
   const video = {
     id: generateUniqueId(),
     author: user.nickname,
     authorId: userId,
     title,
-    url,
+    url: url || fileUrl,        // 优先使用直链，否则用上传文件
+    isUploadedFile: !!fileUrl,
     desc: desc || '',
     likes: 0,
     favorites: 0,
@@ -357,7 +406,6 @@ app.get('/pending-list', (req, res) => {
   });
 });
 
-// 审核通过
 app.post('/approve/:type/:id', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
@@ -378,7 +426,6 @@ app.post('/approve/:type/:id', (req, res) => {
   res.json({ success: true });
 });
 
-// 审核拒绝
 app.post('/reject/:type/:id', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
@@ -399,12 +446,20 @@ app.post('/publish-fulltext', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
   if (!user || (user.role !== 'admin' && user.role !== 'superadmin')) return res.json({ error: '权限不足' });
-  const { title, content, tags, password } = req.body;
+  const { title, content, tags, password, files } = req.body;
   if (password !== '8888') return res.json({ error: '密码错误' });
-  if (!tags || tags.length === 0) return res.json({ error: '请至少选择一个标签' });
+  let tagArray = tags;
+  if (typeof tags === 'string') tagArray = tags.split(',').map(t => t.trim()).filter(Boolean);
+  if (!tagArray || tagArray.length === 0) return res.json({ error: '请至少选择一个标签' });
   data.fulltextArticles.push({
-    id: generateUniqueId(), author: user.nickname, title, content, tags,
-    recommends: 0, timestamp: Date.now()
+    id: generateUniqueId(),
+    author: user.nickname,
+    title,
+    content,
+    tags: tagArray,
+    files: files || [],
+    recommends: 0,
+    timestamp: Date.now()
   });
   saveData();
   res.json({ success: true });
@@ -415,18 +470,26 @@ app.post('/publish-intcom', (req, res) => {
   const userId = req.headers['x-user-id'];
   const user = getUserById(userId);
   if (!user || (user.role !== 'admin' && user.role !== 'superadmin')) return res.json({ error: '权限不足' });
-  const { title, content, tags, password } = req.body;
+  const { title, content, tags, password, files } = req.body;
   if (password !== '世界人民大团结') return res.json({ error: '密码错误' });
-  if (!tags || tags.length === 0) return res.json({ error: '请至少选择一个标签' });
+  let tagArray = tags;
+  if (typeof tags === 'string') tagArray = tags.split(',').map(t => t.trim()).filter(Boolean);
+  if (!tagArray || tagArray.length === 0) return res.json({ error: '请至少选择一个标签' });
   data.intcomArticles.push({
-    id: generateUniqueId(), author: user.nickname, title, content, tags,
-    recommends: 0, timestamp: Date.now()
+    id: generateUniqueId(),
+    author: user.nickname,
+    title,
+    content,
+    tags: tagArray,
+    files: files || [],
+    recommends: 0,
+    timestamp: Date.now()
   });
   saveData();
   res.json({ success: true });
 });
 
-// ========== 个人主页、权限等原有API（保留） ==========
+// ========== 个人主页/权限 ==========
 app.post('/updateLocation', (req, res) => {
   const { id, location } = req.body;
   const user = getUserById(id);
@@ -533,8 +596,11 @@ app.post('/group/upload', upload.single('file'), (req, res) => {
   if (!group || !group.members.includes(userId)) return res.json({ error: '无权限' });
   if (!req.file) return res.json({ error: '未上传文件' });
   const fileInfo = {
-    originalName: req.file.originalname, filename: req.file.filename,
-    url: '/uploads/' + req.file.filename, timestamp: Date.now(), uploaderId: userId
+    originalName: req.file.originalname,
+    filename: req.file.filename,
+    url: '/uploads/' + req.file.filename,
+    timestamp: Date.now(),
+    uploaderId: userId
   };
   if (!group.files) group.files = [];
   group.files.push(fileInfo);
@@ -586,7 +652,7 @@ app.post('/friend/reject', (req, res) => {
   res.json({ success: true });
 });
 
-// ========== Socket.IO ==========
+// ========== Socket.IO（含世界聊天） ==========
 io.on('connection', (socket) => {
   let currentNickname = '';
   let currentId = '';
@@ -704,6 +770,7 @@ io.use((socket, next) => {
   next();
 });
 
+// ========== 启动服务器 ==========
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ 服务器已成功启动，端口 ${PORT}，健康检查 /health 可用`);

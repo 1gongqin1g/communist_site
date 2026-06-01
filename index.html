@@ -289,7 +289,17 @@
     <div id="videos" class="page">
       <div class="greeting-card">
         <h2>🎬 视频区</h2>
-        <div id="videoUploadForm" style="display:none;"><div class="post-form"><h3>投稿视频</h3><input type="text" id="videoTitle" placeholder="视频标题"><input type="text" id="videoUrl" placeholder="视频链接（如B站/YouTube）"><textarea id="videoDesc" rows="3" placeholder="简介"></textarea><button onclick="uploadVideo()">投稿</button></div></div>
+        <div id="videoUploadForm" style="display:none;">
+          <div class="post-form">
+            <h3>投稿视频</h3>
+            <input type="text" id="videoTitle" placeholder="视频标题">
+            <input type="text" id="videoUrl" placeholder="视频链接（可选，若上传文件则忽略）">
+            <input type="file" id="videoFileInput" accept="video/mp4" onchange="previewFileName('videoFileInput','videoFileName')">
+            <span id="videoFileName" style="color:#888;"></span>
+            <textarea id="videoDesc" rows="3" placeholder="简介"></textarea>
+            <button onclick="uploadVideo()">投稿</button>
+          </div>
+        </div>
         <div class="sort-bar"><button class="active-sort" onclick="loadVideos('latest')">最新</button><button onclick="loadVideos('hot')">最热</button></div>
         <div id="videoList"></div>
       </div>
@@ -301,8 +311,40 @@
         <h2>📤 投稿专区</h2>
         <p id="submitLoginTip" style="color:#888;">请先登录（点击“交流”登录），再进行投稿。</p>
         <div id="submitForms" style="display:none;">
-          <div class="submit-section" style="margin:20px 0; padding:20px; background:#FFFDF5; border-radius:12px; border:1px solid #EEDDCC;"><h3>🎬 视频投稿</h3><div class="post-form"><input type="text" id="submitVideoTitle" placeholder="视频标题"><input type="text" id="submitVideoUrl" placeholder="视频链接（如B站/YouTube）"><textarea id="submitVideoDesc" rows="3" placeholder="简介"></textarea><button onclick="submitVideo()">发布视频</button></div></div>
-          <div class="submit-section" style="margin:20px 0; padding:20px; background:#FFFDF5; border-radius:12px; border:1px solid #EEDDCC;"><h3>📰 个人精文报投稿</h3><div class="post-form"><input type="text" id="submitArticleTitle" placeholder="文章标题"><textarea id="submitArticleContent" rows="6" placeholder="正文内容...（支持HTML）"></textarea><div class="tag-selector"><strong>标签（必选）：</strong><label><input type="checkbox" value="政治" class="submit-tag-checkbox">政治</label><label><input type="checkbox" value="经济" class="submit-tag-checkbox">经济</label><label><input type="checkbox" value="军事" class="submit-tag-checkbox">军事</label><label><input type="checkbox" value="社会运动" class="submit-tag-checkbox">社会运动</label><label><input type="checkbox" value="演讲" class="submit-tag-checkbox">演讲</label><label><input type="checkbox" value="文艺" class="submit-tag-checkbox">文艺</label><input type="text" class="custom-tag-input" id="submitCustomTags" placeholder="自定义，逗号分隔"></div><button onclick="submitArticle()">发布文章</button></div></div>
+          <div class="submit-section" style="margin:20px 0; padding:20px; background:#FFFDF5; border-radius:12px; border:1px solid #EEDDCC;">
+            <h3>🎬 视频投稿</h3>
+            <div class="post-form">
+              <input type="text" id="submitVideoTitle" placeholder="视频标题">
+              <input type="text" id="submitVideoUrl" placeholder="视频链接（可选）">
+              <input type="file" id="submitVideoFile" accept="video/mp4" onchange="previewFileName('submitVideoFile','submitVideoFileName')">
+              <span id="submitVideoFileName" style="color:#888;"></span>
+              <textarea id="submitVideoDesc" rows="3" placeholder="简介"></textarea>
+              <button onclick="submitVideo()">发布视频</button>
+            </div>
+          </div>
+          <div class="submit-section" style="margin:20px 0; padding:20px; background:#FFFDF5; border-radius:12px; border:1px solid #EEDDCC;">
+            <h3>📰 个人精文报投稿</h3>
+            <div class="post-form">
+              <input type="text" id="submitArticleTitle" placeholder="文章标题">
+              <textarea id="submitArticleContent" rows="6" placeholder="正文内容...（支持HTML）"></textarea>
+              <div class="tag-selector">
+                <strong>标签（必选）：</strong>
+                <label><input type="checkbox" value="政治" class="submit-tag-checkbox">政治</label>
+                <label><input type="checkbox" value="经济" class="submit-tag-checkbox">经济</label>
+                <label><input type="checkbox" value="军事" class="submit-tag-checkbox">军事</label>
+                <label><input type="checkbox" value="社会运动" class="submit-tag-checkbox">社会运动</label>
+                <label><input type="checkbox" value="演讲" class="submit-tag-checkbox">演讲</label>
+                <label><input type="checkbox" value="文艺" class="submit-tag-checkbox">文艺</label>
+                <input type="text" class="custom-tag-input" id="submitCustomTags" placeholder="自定义，逗号分隔">
+              </div>
+              <div style="margin:10px 0;">
+                <strong>附件（PDF/Word/MP4）：</strong>
+                <input type="file" id="submitArticleFiles" multiple accept=".pdf,.doc,.docx,.mp4" onchange="previewFiles('submitArticleFiles','submitArticleFileList')">
+                <div id="submitArticleFileList" style="font-size:0.9rem; color:#666;"></div>
+              </div>
+              <button onclick="submitArticle()">发布文章</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -524,7 +566,7 @@
         <div class="profile-info">
           <p><strong>ID：</strong>${currentUser.id}</p>
           <p><strong>昵称：</strong>${currentUser.nickname}</p>
-          <p><strong>角色：</strong>${currentUser.role==='superadmin'?'站主':currentUser.role==='admin'?'管理员':'普通同志'}</p>
+          <p><strong>角色：</strong>${currentUser.role==='superadmin'?'站主':currentUser.role==='admin'?'管理员':currentUser.role==='reviewer'?'审核员':'普通同志'}</p>
           <p><strong>硬币：</strong>${currentUser.coins||0} <button class="edit-btn" onclick="dailyClaim()">每日签到</button></p>
           <p><strong>位置：</strong>${currentUser.location?Object.values(currentUser.location).filter(Boolean).join(' '):'未设置'} <button class="edit-btn" onclick="editLocation()">编辑位置</button></p>
           ${currentUser.image?`<img src="${currentUser.image}" class="profile-image" alt="个人图片">`:''}
@@ -731,6 +773,44 @@
       });
     }
 
+    // ========== 通用文件上传函数 ==========
+    function previewFileName(inputId, spanId) {
+      const file = document.getElementById(inputId).files[0];
+      if (file) document.getElementById(spanId).textContent = '已选择: ' + file.name;
+      else document.getElementById(spanId).textContent = '';
+    }
+
+    function previewFiles(inputId, listId) {
+      const files = document.getElementById(inputId).files;
+      const list = document.getElementById(listId);
+      list.innerHTML = '';
+      for (let f of files) {
+        list.innerHTML += `<div>📎 ${f.name} (${(f.size/1024).toFixed(1)}KB)</div>`;
+      }
+    }
+
+    async function uploadFiles(files) {
+      // 上传多个文件并返回 URL 数组
+      const uploadedUrls = [];
+      for (let f of files) {
+        const formData = new FormData();
+        formData.append('file', f);
+        const res = await fetch('/upload-file', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) uploadedUrls.push({ url: data.url, name: data.originalName });
+      }
+      return uploadedUrls;
+    }
+
+    async function uploadSingleFile(file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/upload-file', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.success) return data.url;
+      return null;
+    }
+
     // ========== 个人精文报（公开广场） ==========
     let publicFeedSort = 'latest';
     async function loadPublicFeed() {
@@ -742,9 +822,44 @@
       const container = document.getElementById('myArticlesContainer');
       const predefinedTags = ["政治","经济","军事","社会运动","演讲","文艺"];
       const tagCheckboxes = predefinedTags.map(tag => `<label><input type="checkbox" value="${tag}" class="tag-checkbox">${tag}</label>`).join('');
-      const formHtml = `<div class="post-form"><h3>发表新文章（支持HTML）</h3><input type="text" id="newTitle" placeholder="文章标题"><textarea id="newContent" rows="6" placeholder="正文内容...（支持<b>加粗</b>、<h3>小标题</h3>等HTML标签）"></textarea><div class="tag-selector"><strong>标签（必选）：</strong>${tagCheckboxes}<input type="text" class="custom-tag-input" id="customTags" placeholder="自定义，逗号分隔"></div><button onclick="publishArticle()">发布</button></div><div class="sort-bar"><button class="${publicFeedSort==='latest'?'active-sort':''}" onclick="setFeedSort('latest')">最新</button><button class="${publicFeedSort==='hot'?'active-sort':''}" onclick="setFeedSort('hot')">热门</button></div>`;
+      const formHtml = `
+        <div class="post-form">
+          <h3>发表新文章（支持HTML）</h3>
+          <input type="text" id="newTitle" placeholder="文章标题">
+          <textarea id="newContent" rows="6" placeholder="正文内容...（支持<b>加粗</b>、<h3>小标题</h3>等HTML标签）"></textarea>
+          <div class="tag-selector">
+            <strong>标签（必选）：</strong>
+            ${tagCheckboxes}
+            <input type="text" class="custom-tag-input" id="customTags" placeholder="自定义，逗号分隔">
+          </div>
+          <div style="margin:10px 0;">
+            <strong>附件（PDF/Word/MP4）：</strong>
+            <input type="file" id="articleFiles" multiple accept=".pdf,.doc,.docx,.mp4" onchange="previewFiles('articleFiles','articleFileList')">
+            <div id="articleFileList" style="font-size:0.9rem; color:#666;"></div>
+          </div>
+          <button onclick="publishArticle()">发布</button>
+        </div>
+        <div class="sort-bar">
+          <button class="${publicFeedSort==='latest'?'active-sort':''}" onclick="setFeedSort('latest')">最新</button>
+          <button class="${publicFeedSort==='hot'?'active-sort':''}" onclick="setFeedSort('hot')">热门</button>
+        </div>`;
       if (!articles.length) container.innerHTML = formHtml + '<p style="text-align:center; color:#888;">暂无文章</p>';
-      else container.innerHTML = formHtml + articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><div style="margin:10px 0;">${a.content}</div><div class="action-buttons"><button class="action-btn" onclick="likeArticle('${a.id}')">👍 ${a.likes||0}</button><button class="action-btn" onclick="favArticle('${a.id}')">⭐ ${a.favorites||0}</button><button class="action-btn" onclick="coinArticle('${a.id}')">🪙 ${a.coins||0}</button></div></div>`).join('');
+      else {
+        container.innerHTML = formHtml + articles.map(a => `
+          <div class="article-item">
+            <h3>${a.title}</h3>
+            <div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div>
+            <div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div>
+            <div style="margin:10px 0;">${a.content || ''}</div>
+            ${a.files && a.files.length ? '<div style="margin-top:8px;"><strong>附件：</strong>' + a.files.map(f => `<a href="${f.url}" target="_blank">${f.name}</a>`).join(', ') + '</div>' : ''}
+            <div class="action-buttons">
+              <button class="action-btn" onclick="likeArticle('${a.id}')">👍 ${a.likes||0}</button>
+              <button class="action-btn" onclick="favArticle('${a.id}')">⭐ ${a.favorites||0}</button>
+              <button class="action-btn" onclick="coinArticle('${a.id}')">🪙 ${a.coins||0}</button>
+            </div>
+          </div>
+        `).join('');
+      }
     }
     function setFeedSort(sort) { publicFeedSort = sort; loadPublicFeed(); }
     async function publishArticle() {
@@ -755,8 +870,17 @@
       const customInput = document.getElementById('customTags').value.trim();
       if (customInput) { const customs = customInput.split(',').map(s => s.trim()).filter(Boolean); customs.forEach(t => { if (!selectedTags.includes(t)) selectedTags.push(t); }); }
       if (selectedTags.length === 0) return alert('请至少选择一个标签');
-      if (!title || !content) return alert('标题和内容不能为空');
-      const res = await fetch('/publish', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,content,tags:selectedTags}) });
+      if (!title) return alert('标题不能为空');
+      if (!content && document.getElementById('articleFiles').files.length === 0) return alert('正文或附件至少填写一项');
+
+      const files = document.getElementById('articleFiles').files;
+      const uploadedFiles = files.length > 0 ? await uploadFiles(files) : [];
+
+      const res = await fetch('/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': currentUser.id },
+        body: JSON.stringify({ title, content, tags: selectedTags, files: uploadedFiles })
+      });
       const data = await res.json();
       if (data.error) alert(data.error);
       else loadPublicFeed();
@@ -786,7 +910,7 @@
       const articles = await res.json();
       const container = document.getElementById('publicArticlesList');
       if (!articles.length) container.innerHTML = '<p style="color:#888;">暂无文章，点击下方按钮刊登。</p>';
-      else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><div style="margin:10px 0;">${a.content}</div></div>`).join('');
+      else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><div style="margin:10px 0;">${a.content || ''}</div>${a.files && a.files.length ? '<div><strong>附件：</strong>' + a.files.map(f => `<a href="${f.url}" target="_blank">${f.name}</a>`).join(', ') + '</div>' : ''}</div>`).join('');
     }
     function showAddPublicArticle() {
       if (!currentUser) return alert('请先登录');
@@ -795,10 +919,10 @@
       const title = prompt('文章标题：');
       if (!title) return;
       const content = prompt('文章内容（支持HTML）：');
-      if (!content) return;
       const tagsInput = prompt('请输入标签（用逗号分隔，如：政治,经济）：');
       const tags = tagsInput ? tagsInput.split(',').map(s => s.trim()).filter(Boolean) : [];
       if (tags.length === 0) return alert('至少需要一个标签');
+      // 简化的其他文集投稿不支持文件，若需要可扩展
       fetch('/publish-public', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,content,password:pwd,tags}) }).then(r=>r.json()).then(data=>{ if(data.error) alert(data.error); else alert('投稿已提交审核'); });
     }
 
@@ -808,7 +932,7 @@
       const articles = await res.json();
       const container = document.getElementById('fulltextArticlesList');
       if (!articles.length) container.innerHTML = '<p style="color:#888;">暂无全文，管理员或站主可在此刊登。</p>';
-      else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><div style="margin:10px 0;">${a.content}</div><div class="action-buttons"><button class="action-btn" onclick="recommendArticle('${a.id}')">📢 推荐 ${a.recommends||0}</button></div></div>`).join('');
+      else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><div style="margin:10px 0;">${a.content || ''}</div><div class="action-buttons"><button class="action-btn" onclick="recommendArticle('${a.id}')">📢 推荐 ${a.recommends||0}</button></div></div>`).join('');
     }
     function showAddFulltext() {
       if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'superadmin')) return alert('仅管理员或站主可刊登');
@@ -817,7 +941,6 @@
       const title = prompt('文章标题：');
       if (!title) return;
       const content = prompt('文章内容：');
-      if (!content) return;
       const tagsInput = prompt('请输入标签（用逗号分隔）：');
       const tags = tagsInput ? tagsInput.split(',').map(s => s.trim()).filter(Boolean) : [];
       if (tags.length === 0) return alert('至少需要一个标签');
@@ -831,7 +954,7 @@
       const articles = await res.json();
       const container = document.getElementById('intcomArticlesList');
       if (!articles.length) container.innerHTML = '<p style="color:#888;">暂无文章。</p>';
-      else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><div style="margin:10px 0;">${a.content}</div><div class="action-buttons"><button class="action-btn" onclick="recommendIntcomArticle('${a.id}')">👍 推荐 ${a.recommends||0}</button></div></div>`).join('');
+      else container.innerHTML = articles.map(a => `<div class="article-item"><h3>${a.title}</h3><div class="article-meta">${a.author} · ${new Date(a.timestamp).toLocaleString()}</div><div>${a.tags ? a.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : ''}</div><div style="margin:10px 0;">${a.content || ''}</div><div class="action-buttons"><button class="action-btn" onclick="recommendIntcomArticle('${a.id}')">👍 推荐 ${a.recommends||0}</button></div></div>`).join('');
     }
     function showAddIntcomArticle() {
       if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'superadmin')) return alert('仅管理员或站主可刊登');
@@ -840,7 +963,6 @@
       const title = prompt('文章标题：');
       if (!title) return;
       const content = prompt('文章内容（可包含<img>标签）：');
-      if (!content) return;
       const tagsInput = prompt('请输入标签（用逗号分隔）：');
       const tags = tagsInput ? tagsInput.split(',').map(s => s.trim()).filter(Boolean) : [];
       if (tags.length === 0) return alert('至少需要一个标签');
@@ -856,18 +978,41 @@
       const videos = await res.json();
       const container = document.getElementById('videoList');
       if (!videos.length) container.innerHTML = '<p style="color:#888;">暂无视频。</p>';
-      else container.innerHTML = videos.map(v => `<div class="article-item"><h3>${v.title}</h3><div class="article-meta">${v.author} · ${new Date(v.timestamp).toLocaleString()}</div><p>${v.desc||''}</p><a href="${v.url}" target="_blank">🔗 观看视频</a><div class="action-buttons"><button class="action-btn" onclick="likeVideo('${v.id}')">👍 ${v.likes||0}</button><button class="action-btn" onclick="favVideo('${v.id}')">⭐ ${v.favorites||0}</button><button class="action-btn" onclick="showVideoComments('${v.id}')">💬 ${v.comments? v.comments.length:0}</button></div><div id="comments-${v.id}" style="display:none; margin-top:10px;"></div></div>`).join('');
+      else container.innerHTML = videos.map(v => {
+        const videoEmbed = v.isUploadedFile
+          ? `<video controls style="max-width:100%;"><source src="${v.url}" type="video/mp4"></video>`
+          : `<a href="${v.url}" target="_blank">🔗 观看视频</a>`;
+        return `<div class="article-item"><h3>${v.title}</h3><div class="article-meta">${v.author} · ${new Date(v.timestamp).toLocaleString()}</div><p>${v.desc||''}</p>${videoEmbed}<div class="action-buttons"><button class="action-btn" onclick="likeVideo('${v.id}')">👍 ${v.likes||0}</button><button class="action-btn" onclick="favVideo('${v.id}')">⭐ ${v.favorites||0}</button><button class="action-btn" onclick="showVideoComments('${v.id}')">💬 ${v.comments? v.comments.length:0}</button></div><div id="comments-${v.id}" style="display:none; margin-top:10px;"></div></div>`;
+      }).join('');
     }
     async function uploadVideo() {
       if (!currentUser) return alert('请先登录');
       const title = document.getElementById('videoTitle').value.trim();
       const url = document.getElementById('videoUrl').value.trim();
       const desc = document.getElementById('videoDesc').value.trim();
-      if (!title || !url) return alert('标题和链接不能为空');
-      const res = await fetch('/upload-video', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,url,desc}) });
+      const fileInput = document.getElementById('videoFileInput');
+      if (!title) return alert('标题不能为空');
+      if (!url && fileInput.files.length === 0) return alert('请提供视频链接或上传 MP4 文件');
+
+      let fileUrl = null;
+      if (fileInput.files.length > 0) {
+        fileUrl = await uploadSingleFile(fileInput.files[0]);
+      }
+      const res = await fetch('/upload-video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': currentUser.id },
+        body: JSON.stringify({ title, url, desc, fileUrl })
+      });
       const data = await res.json();
       if(data.error) alert(data.error);
-      else { alert('视频已提交审核'); document.getElementById('videoTitle').value=''; document.getElementById('videoUrl').value=''; document.getElementById('videoDesc').value=''; }
+      else {
+        alert('视频已提交审核');
+        document.getElementById('videoTitle').value = '';
+        document.getElementById('videoUrl').value = '';
+        document.getElementById('videoDesc').value = '';
+        fileInput.value = '';
+        document.getElementById('videoFileName').textContent = '';
+      }
     }
     async function likeVideo(videoId) {
       const res = await fetch(`/videos/${videoId}/like`, { method:'POST',headers:{'x-user-id':currentUser.id} });
@@ -904,12 +1049,31 @@
       const title = document.getElementById('submitVideoTitle').value.trim();
       const url = document.getElementById('submitVideoUrl').value.trim();
       const desc = document.getElementById('submitVideoDesc').value.trim();
-      if (!title || !url) return alert('标题和链接不能为空');
-      const res = await fetch('/upload-video', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,url,desc}) });
+      const fileInput = document.getElementById('submitVideoFile');
+      if (!title) return alert('标题不能为空');
+      if (!url && fileInput.files.length === 0) return alert('请提供视频链接或上传 MP4 文件');
+
+      let fileUrl = null;
+      if (fileInput.files.length > 0) {
+        fileUrl = await uploadSingleFile(fileInput.files[0]);
+      }
+      const res = await fetch('/upload-video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': currentUser.id },
+        body: JSON.stringify({ title, url, desc, fileUrl })
+      });
       const data = await res.json();
       if(data.error) alert(data.error);
-      else { alert('视频已提交审核'); document.getElementById('submitVideoTitle').value=''; document.getElementById('submitVideoUrl').value=''; document.getElementById('submitVideoDesc').value=''; }
+      else {
+        alert('视频已提交审核');
+        document.getElementById('submitVideoTitle').value = '';
+        document.getElementById('submitVideoUrl').value = '';
+        document.getElementById('submitVideoDesc').value = '';
+        fileInput.value = '';
+        document.getElementById('submitVideoFileName').textContent = '';
+      }
     }
+
     async function submitArticle() {
       if (!currentUser) return alert('请先登录');
       const title = document.getElementById('submitArticleTitle').value.trim();
@@ -919,11 +1083,28 @@
       const customInput = document.getElementById('submitCustomTags').value.trim();
       if (customInput) { const customs = customInput.split(',').map(s => s.trim()).filter(Boolean); customs.forEach(t => { if (!selectedTags.includes(t)) selectedTags.push(t); }); }
       if (selectedTags.length === 0) return alert('请至少选择一个标签');
-      if (!title || !content) return alert('标题和内容不能为空');
-      const res = await fetch('/publish', { method:'POST',headers:{'Content-Type':'application/json','x-user-id':currentUser.id},body:JSON.stringify({title,content,tags:selectedTags}) });
+      if (!title) return alert('标题不能为空');
+      if (!content && document.getElementById('submitArticleFiles').files.length === 0) return alert('正文或附件至少填写一项');
+
+      const files = document.getElementById('submitArticleFiles').files;
+      const uploadedFiles = files.length > 0 ? await uploadFiles(files) : [];
+
+      const res = await fetch('/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': currentUser.id },
+        body: JSON.stringify({ title, content, tags: selectedTags, files: uploadedFiles })
+      });
       const data = await res.json();
-      if (data.error) alert(data.error);
-      else { alert('文章发布成功！'); document.getElementById('submitArticleTitle').value=''; document.getElementById('submitArticleContent').value=''; document.querySelectorAll('.submit-tag-checkbox').forEach(cb=>cb.checked=false); document.getElementById('submitCustomTags').value=''; }
+      if(data.error) alert(data.error);
+      else {
+        alert('文章发布成功！');
+        document.getElementById('submitArticleTitle').value = '';
+        document.getElementById('submitArticleContent').value = '';
+        document.querySelectorAll('.submit-tag-checkbox').forEach(cb=>cb.checked=false);
+        document.getElementById('submitCustomTags').value = '';
+        document.getElementById('submitArticleFiles').value = '';
+        document.getElementById('submitArticleFileList').innerHTML = '';
+      }
     }
 
     // ========== 信箱 ==========
